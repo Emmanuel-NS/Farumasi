@@ -151,3 +151,56 @@ exports.getPharmacyById = (req, res) => {
     res.json(pharmacy);
   });
 };
+
+// ✏️ Update pharmacy details by ID
+exports.updatePharmacy = (req, res) => {
+  const { id } = req.params;
+  const {
+    name, email, phone, address, insurance_accepted,
+    country, province, district, sector, village,
+    latitude, longitude, is_active
+  } = req.body;
+
+  if (!latitude || !longitude) {
+    return res.status(400).json({ error: 'Coordinates are required' });
+  }
+
+  const insuranceJSON = JSON.stringify(insurance_accepted || []);
+  const updatedAt = new Date().toISOString();
+
+  const pharmacySql = `
+    UPDATE pharmacies
+    SET name = ?, email = ?, phone = ?, address = ?, insurance_accepted = ?, updated_at = ?, is_active = ?
+    WHERE id = ?
+  `;
+
+  db.run(
+    pharmacySql,
+    [name, email, phone, address, insuranceJSON, updatedAt, is_active ?? 1, id],
+    function (err) {
+      if (err) return res.status(400).json({ error: err.message });
+
+      const locationSql = `
+        UPDATE locations 
+        SET country = ?, province = ?, district = ?, sector = ?, village = ?, latitude = ?, longitude = ?
+        WHERE pharmacy_id = ?
+      `;
+      db.run(
+        locationSql,
+        [
+          country || null, province || null, district || null,
+          sector || null, village || null, latitude, longitude,
+          id
+        ],
+        function (locErr) {
+          if (locErr) return res.status(400).json({ error: locErr.message });
+
+          res.json({
+            message: 'Pharmacy updated successfully',
+            pharmacyId: id
+          });
+        }
+      );
+    }
+  );
+}

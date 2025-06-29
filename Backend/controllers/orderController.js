@@ -28,8 +28,9 @@ function pharmacyHasAllProducts(pharmacyId, items) {
 
 // 📦 Place order
 exports.placeOrder = async (req, res) => {
-  const { user_id, insurance_provider = 'NONE' } = req.body;
-  let items = req.body.items;
+  const user_id = req.user.id;
+  let items = req.body.items || '[]';
+  const insurance_provider = req.body.insurance_provider || 'NONE';
   const prescription_file = req.file ? req.file.filename : null;
 
   if (typeof items === 'string') {
@@ -60,10 +61,10 @@ exports.placeOrder = async (req, res) => {
   // ✅ Case: Prescription only
   if (hasPrescription && !hasItems) {
     const insertSQL = `
-      INSERT INTO orders (user_id, prescription_file, insurance_provider, status)
-      VALUES (?, ?, ?, 'pending_prescription_review')
+      INSERT INTO orders (user_id, prescription_file, status)
+      VALUES (?, ?, 'pending_prescription_review')
     `;
-    db.run(insertSQL, [user_id, prescription_file, insurance_provider], function (err) {
+    db.run(insertSQL, [user_id, prescription_file], function (err) {
       if (err) {
         console.error('[Prescription Order Error]', err);
         return res.status(500).json({ error: 'Failed to place prescription order' });
@@ -296,6 +297,7 @@ exports.getOrdersForPharmacy = (req, res) => {
 exports.updateOrderStatus = (req, res) => {
   const orderId = req.params.id;
   const { status } = req.body;
+  //example of the body: { "status": "approved" }
 
   const validStatuses = ['pending', 'approved', 'shipped', 'delivered', 'canceled'];
 
@@ -340,17 +342,21 @@ exports.deleteOrder = (req, res) => {
 };
 
 // 🔄 Update prescription-based order after admin review
-
-// Update prescription-based order
 exports.updatePrescriptionOrderDetails = async (req, res) => {
   const { order_id, insurance_provider = 'NONE', items, status = 'pending' } = req.body;
+
+  const insuranceDiscounts = {
+    'RSSB': 0.20,
+    'MUTUELLE': 0.10,
+    'NONE': 0
+  };
 
   if (!order_id || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'order_id and valid items are required' });
   }
 
   try {
-    // Get user_id from existing order
+    // 1. Get existing order
     const existingOrder = await new Promise((resolve, reject) => {
       db.get('SELECT * FROM orders WHERE id = ?', [order_id], (err, row) => {
         if (err) reject(err);
@@ -361,21 +367,20 @@ exports.updatePrescriptionOrderDetails = async (req, res) => {
 
     const user_id = existingOrder.user_id;
 
-    // Get user location
+    // 2. Get user + location
     const user = await new Promise((resolve, reject) => {
-      const sql = `
+      db.get(`
         SELECT u.*, l.latitude AS user_lat, l.longitude AS user_long
         FROM users u
         LEFT JOIN locations l ON u.id = l.user_id
         WHERE u.id = ?
-      `;
-      db.get(sql, [user_id], (err, row) => {
+      `, [user_id], (err, row) => {
         if (err || !row) reject(new Error('User location not found'));
         else resolve(row);
       });
     });
 
-    // Get pharmacies with locations
+    // 3. Get all pharmacies with locations
     const pharmacies = await new Promise((resolve, reject) => {
       db.all(`
         SELECT p.*, l.latitude AS pharm_lat, l.longitude AS pharm_long
@@ -387,9 +392,8 @@ exports.updatePrescriptionOrderDetails = async (req, res) => {
       });
     });
 
-    // Check which pharmacy has all items and accepts insurance
+    // 4. Filter eligible pharmacies
     const eligible = [];
-
     for (const pharm of pharmacies) {
       if (!pharm.pharm_lat || !pharm.pharm_long || !user.user_lat || !user.user_long) continue;
 
@@ -422,7 +426,7 @@ exports.updatePrescriptionOrderDetails = async (req, res) => {
 
     const nearest = eligible.reduce((a, b) => a.distance < b.distance ? a : b);
 
-    // Get item prices
+    // 5. Get prices from nearest pharmacy
     const productMap = {};
     for (const item of items) {
       const product = await new Promise((resolve, reject) => {
@@ -436,16 +440,16 @@ exports.updatePrescriptionOrderDetails = async (req, res) => {
     }
 
     const subtotal = items.reduce((sum, i) => sum + (productMap[i.product_id] * i.quantity), 0);
-    const discount = insuranceDiscounts[insurance_provider] || 0;
-    const total = subtotal * (1 - discount);
+    const discountRate = insuranceDiscounts[insurance_provider] || 0;
+    const discountedTotal = subtotal * (1 - discountRate);
     const delivery_fee = calculateDeliveryFee(nearest.distance);
 
-    // 1. Delete previous items if any
+    // 6. Clear old items
     await new Promise((resolve, reject) => {
       db.run('DELETE FROM order_items WHERE order_id = ?', [order_id], err => err ? reject(err) : resolve());
     });
 
-    // 2. Insert new order items
+    // 7. Insert new items
     await Promise.all(items.map(item => {
       const price = productMap[item.product_id];
       return new Promise((resolve, reject) => {
@@ -457,7 +461,7 @@ exports.updatePrescriptionOrderDetails = async (req, res) => {
       });
     }));
 
-    // 3. Update the main order
+    // 8. Update order
     db.run(`
       UPDATE orders SET
         pharmacy_id = ?,
@@ -466,13 +470,14 @@ exports.updatePrescriptionOrderDetails = async (req, res) => {
         insurance_provider = ?,
         status = ?
       WHERE id = ?
-    `, [nearest.id, total, delivery_fee, insurance_provider, status, order_id], function(err) {
+    `, [nearest.id, discountedTotal, delivery_fee, insurance_provider, status, order_id], function(err) {
       if (err) return res.status(500).json({ error: 'Failed to update order' });
 
       res.json({
         message: 'Order updated successfully after prescription review',
         order_id,
-        total_price: total,
+        total_price: discountedTotal,
+        discount_rate: discountRate,
         delivery_fee,
         pharmacy: {
           id: nearest.id,

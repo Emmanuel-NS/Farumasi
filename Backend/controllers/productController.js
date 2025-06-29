@@ -132,28 +132,68 @@ exports.getProductById = (req, res) => {
   });
 };
 
-// ✏️ Update product
+/// ✏️ Update product (with optional fields)
 exports.updateProduct = (req, res) => {
   const { id } = req.params;
   const { name, description, category, price, requires_prescription } = req.body;
 
-  const sql = `
-    UPDATE products
-    SET name = ?, description = ?, category = ?, price = ?, requires_prescription = ?
-    WHERE id = ?
-  `;
+  if (!id) {
+    return res.status(400).json({ error: 'Product ID is required' });
+  }
 
-  db.run(sql, [
-    name?.trim(),
-    description?.trim(),
-    category?.trim(),
-    parseFloat(price),
-    (requires_prescription === true || requires_prescription === 'true') ? 1 : 0,
-    id
-  ], function (err) {
+  const image = req.file ? req.file.filename : null;
+
+  const fields = [];
+  const values = [];
+
+  if (name !== undefined) {
+    fields.push('name = ?');
+    values.push(name.trim());
+  }
+  if (description !== undefined) {
+    fields.push('description = ?');
+    values.push(description.trim());
+  }
+  if (category !== undefined) {
+    fields.push('category = ?');
+    values.push(category.trim());
+  }
+  if (price !== undefined) {
+    const parsedPrice = parseFloat(price);
+    if (isNaN(parsedPrice)) {
+      return res.status(400).json({ error: 'Price must be a valid number' });
+    }
+    fields.push('price = ?');
+    values.push(parsedPrice);
+  }
+  if (requires_prescription !== undefined) {
+    fields.push('requires_prescription = ?');
+    values.push(
+      requires_prescription === true || requires_prescription === 'true' ? 1 : 0
+    );
+  }
+  if (image) {
+    fields.push('image = ?');
+    values.push(image);
+  }
+
+  if (fields.length === 0) {
+    return res
+      .status(400)
+      .json({ error: 'At least one field must be provided for update' });
+  }
+
+  const sql = `UPDATE products SET ${fields.join(', ')} WHERE id = ?`;
+  values.push(id);
+
+  db.run(sql, values, function (err) {
     if (err) return res.status(500).json({ error: err.message });
-    if (this.changes === 0) return res.status(404).json({ error: 'Product not found or unchanged' });
-    res.json({ message: 'Product updated' });
+    if (this.changes === 0)
+      return res
+        .status(404)
+        .json({ error: 'Product not found or no changes made' });
+
+    res.json({ message: 'Product updated successfully' });
   });
 };
 

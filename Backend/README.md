@@ -77,7 +77,7 @@ Auth: JWT or token-based access (authMiddleware)
 
 ---
 
-### 🧑‍💼 Auth Routes
+### 🧑‍💼 Auth Routes ('/api/auth')
 
 | Method | Endpoint                 | Description               | Auth | Body |
 |--------|--------------------------|---------------------------|------|------|
@@ -87,7 +87,7 @@ Auth: JWT or token-based access (authMiddleware)
 
 ---
 
-### 📍 Location Routes
+### 📍 Location Routes ('/api/locations')
 
 | Method | Endpoint                        | Description                    |
 |--------|----------------------------------|--------------------------------|
@@ -99,7 +99,7 @@ Auth: JWT or token-based access (authMiddleware)
 
 ---
 
-### 🏥 Pharmacy Routes
+### 🏥 Pharmacy Routes ('/api/pharmacies')
 
 | Method | Endpoint     | Description              |
 |--------|--------------|--------------------------|
@@ -109,7 +109,7 @@ Auth: JWT or token-based access (authMiddleware)
 
 ---
 
-### 💊 Product Routes
+### 💊 Product Routes ('/api/products')
 
 | Method | Endpoint   | Description                      |
 |--------|------------|----------------------------------|
@@ -121,7 +121,7 @@ Auth: JWT or token-based access (authMiddleware)
 
 ---
 
-### 📦 Order Routes
+### 📦 Order Routes ('/api/orders')
 
 | Method | Endpoint                             | Description                                               |
 |--------|---------------------------------------|-----------------------------------------------------------|
@@ -138,7 +138,7 @@ Auth: JWT or token-based access (authMiddleware)
 
 ---
 
-### 💰 Payment Routes (MoMo API)
+### 💰 Payment Routes [MoMo API] ('/api/payment')
 
 | Method | Endpoint               | Description                        |
 |--------|------------------------|------------------------------------|
@@ -346,7 +346,7 @@ This section provides detailed documentation for each API endpoint in the Faruma
 
 ### Pharmacy Routes
 
-#### POST /pharmacy/register
+#### POST /
 
 - **Description**: Register a new pharmacy.
 - **Headers**:
@@ -381,7 +381,7 @@ This section provides detailed documentation for each API endpoint in the Faruma
 }
 ```
 
-#### GET /pharmacy/:pharmacyId
+#### GET /:pharmacyId
 
 - **Description**: Retrieve details of a specific pharmacy by its ID.
 - **Headers**:
@@ -406,7 +406,7 @@ This section provides detailed documentation for each API endpoint in the Faruma
 
 ### Product Routes
 
-#### POST /product/add
+#### POST /
 
 - **Description**: Add a new product to a pharmacy.
 - **Headers**:
@@ -438,7 +438,7 @@ This section provides detailed documentation for each API endpoint in the Faruma
 }
 ```
 
-#### GET /product/:productId
+#### GET /:productId
 
 - **Description**: Retrieve details of a specific product by its ID.
 - **Headers**:
@@ -455,7 +455,8 @@ This section provides detailed documentation for each API endpoint in the Faruma
   "category": "Pain Relief",
   "price": 1000,
   "requires_prescription": false,
-  "pharmacy_id": 1
+  "pharmacy_id": 1,
+  "image_url": "135385236-pracetamol.png"
 }
 ```
 
