@@ -5,27 +5,27 @@ const upload = require('../utils/fileUpload');
 const authMiddleware = require('../middleware/auth');
 
 // Place a new order (with file upload) 
-router.post('/',authMiddleware, upload.single('prescription_file'), orderController.placeOrder); //pooly documented. nt json data it should be form-data
+router.post('/',authMiddleware, upload.single('prescription_file'), orderController.placeOrder); 
 
 // Get all orders (general route, first)
-router.get('/', orderController.getAllOrders);//not well documented. it excludes orders with status 'pending_prescription_review'
+router.get('/', orderController.getAllOrders);
 
 // Get all orders for a user (put before /:id)
-router.get('/user/:user_id', orderController.getOrdersByUser); //not documented
+router.get('/user/:user_id', orderController.getOrdersByUser);
 
 // Get all orders for a pharmacy (put before /:id)
-router.get('/pharmacy/:pharmacy_id', orderController.getOrdersForPharmacy);//not documented
+router.get('/pharmacy/:pharmacy_id', orderController.getOrdersForPharmacy);
 
 // Get order details by ID (general route, last)
-router.get('/:id', orderController.getOrderById);//not well documented. it excludes orders with status 'pending_prescription_review'
+router.get('/:id', orderController.getOrderById);
 
 // Update order status
 router.put('/:id/status', orderController.updateOrderStatus);
 
 // Update order details
-router.put('/prescription-review', orderController.updatePrescriptionOrderDetails); //not documented
+router.put('/prescription-review', orderController.updatePrescriptionOrderDetails);
 
 // Delete order
-router.delete('/:id', orderController.deleteOrder); ///not documented
+router.delete('/:id', orderController.deleteOrder);
 
 module.exports = router;

@@ -3,8 +3,8 @@ const router = express.Router();
 const pharmacyController = require('../controllers/pharmacyController');
 
 router.post('/', pharmacyController.registerPharmacy);
-router.get('/', pharmacyController.getAllPharmacies); //not documented in README
-router.put('/:id', pharmacyController.updatePharmacy); //not documented in README
+router.get('/', pharmacyController.getAllPharmacies); 
+router.put('/:id', pharmacyController.updatePharmacy); 
 router.get('/:id', pharmacyController.getPharmacyById); 
 
 module.exports = router;

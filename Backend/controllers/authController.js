@@ -124,7 +124,7 @@ exports.login = (req, res) => {
 // Update user location (after login)
 exports.updateLocation = (req, res) => {
   const userId = req.user.id;
-  const { latitude, longitude } = req.body;
+  const { latitude, longitude, country, province, district, sector, village } = req.body;
 
   if (
     latitude === undefined || longitude === undefined ||
@@ -135,8 +135,39 @@ exports.updateLocation = (req, res) => {
     return res.status(400).json({ error: 'Valid latitude and longitude required' });
   }
 
-  const updateSql = `UPDATE locations SET latitude = ?, longitude = ? WHERE user_id = ?`;
-  db.run(updateSql, [latitude, longitude, userId], function (err) {
+  let updateSql = `UPDATE locations SET`;
+  const params = [];
+  if (latitude !== undefined) {
+    updateSql += ` latitude = ?`;
+    params.push(latitude);
+  }
+  if (longitude !== undefined) {
+    updateSql += `, longitude = ?`;
+    params.push(longitude);
+  }
+  if (country !== undefined) {
+    updateSql += `, country = ?`;
+    params.push(country);
+  }
+  if (province !== undefined) {
+    updateSql += `, province = ?`;
+    params.push(province);
+  }
+  if (district !== undefined) {
+    updateSql += `, district = ?`;
+    params.push(district);
+  }
+  if (sector !== undefined) {
+    updateSql += `, sector = ?`;
+    params.push(sector);
+  }
+  if (village !== undefined) {
+    updateSql += `, village = ?`;
+    params.push(village);
+  }
+  params.push(userId)
+  updateSql += ` WHERE user_id = ?`;
+  db.run(updateSql, params, function (err) {
     if (err) return res.status(500).json({ error: 'Failed to update location' });
     if (this.changes === 0) {
       return res.status(404).json({ error: 'Location not found for user' });
