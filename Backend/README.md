@@ -192,7 +192,7 @@ The **Farumasi Backend API** provides a complete system for medicine ordering an
 
 The following Entity Relationship Diagram (ERD) shows how the tables in the Farumasi system relate to one another:
 
-![ERD Diagram](./images/Diagram.svg)
+![ERD Diagram](./images/erd.svg)
 
 - `users` are linked to `locations` and `orders`
 - `pharmacies` own `products` and also have `locations`
