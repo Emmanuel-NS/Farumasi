@@ -8,6 +8,9 @@ export default function UserNavbar() {
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
 
+  // Check if admin is viewing user interface
+  const isAdminUserView = isAdmin() && location.pathname.startsWith('/admin/user-view');
+
   const handleLogout = () => {
     logout();
   };
@@ -27,16 +30,31 @@ export default function UserNavbar() {
   };
 
   const handleNavClick = (path) => {
-    if (location.pathname === path) {
+    // Adjust path for admin user view
+    let targetPath = path;
+    if (isAdminUserView) {
+      if (path === '/dashboard') targetPath = '/admin/user-view';
+      else if (path === '/orders') targetPath = '/admin/user-view/orders';
+      else if (path === '/profile') targetPath = '/admin/user-view/profile';
+    }
+
+    if (location.pathname === targetPath) {
       // If already on this page, refresh it
       window.location.reload();
     } else {
       // Otherwise navigate to the page
-      navigate(path);
+      navigate(targetPath);
     }
   };
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => {
+    if (isAdminUserView) {
+      if (path === '/dashboard') return location.pathname === '/admin/user-view';
+      else if (path === '/orders') return location.pathname === '/admin/user-view/orders';
+      else if (path === '/profile') return location.pathname === '/admin/user-view/profile';
+    }
+    return location.pathname === path;
+  };
 
   return (
     <nav className="bg-green-600 text-white shadow-lg">
@@ -109,7 +127,9 @@ export default function UserNavbar() {
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
                     <div className="px-4 py-2 text-sm text-gray-700 border-b">
                       <div className="font-medium">{user?.name}</div>
-                      <div className="text-xs text-gray-500">User Role</div>
+                      <div className="text-xs text-gray-500">
+                        {isAdminUserView ? 'Admin (User View)' : 'User Role'}
+                      </div>
                     </div>
                     
                     {isAdmin() && (
