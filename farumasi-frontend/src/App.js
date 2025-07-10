@@ -54,6 +54,26 @@ function AppRoutes() {
           </RoleProtectedRoute>
         } />
         
+        {/* Admin viewing user interface routes */}
+        <Route path="/admin/user-view" element={
+          <RoleProtectedRoute requiredRole="admin">
+            <UserNavbar />
+            <UserDashboard />
+          </RoleProtectedRoute>
+        } />
+        <Route path="/admin/user-view/orders" element={
+          <RoleProtectedRoute requiredRole="admin">
+            <UserNavbar />
+            <UserOrders />
+          </RoleProtectedRoute>
+        } />
+        <Route path="/admin/user-view/profile" element={
+          <RoleProtectedRoute requiredRole="admin">
+            <UserNavbar />
+            <UserProfile />
+          </RoleProtectedRoute>
+        } />
+        
         {/* Protected Admin Routes */}
         <Route path="/admin" element={
           <RoleProtectedRoute requiredRole="admin">
