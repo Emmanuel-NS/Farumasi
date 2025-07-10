@@ -13,7 +13,7 @@ export default function Navbar() {
   };
 
   const switchToUserDashboard = () => {
-    navigate('/dashboard');
+    navigate('/admin/user-view');
   };
 
   return (
