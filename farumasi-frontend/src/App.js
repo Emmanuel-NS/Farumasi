@@ -22,6 +22,7 @@ import Register from "./pages/Register";
 import UserDashboard from "./pages/UserDashboard";
 import UserOrders from "./pages/UserOrders";
 import UserProfile from "./pages/UserProfile";
+import OrderTracking from "./pages/OrderTracking";
 
 function AppRoutes() {
   const { isAuthenticated, getUserRole } = useAuth();
@@ -45,6 +46,12 @@ function AppRoutes() {
           <RoleProtectedRoute requiredRole="user">
             <UserNavbar />
             <UserOrders />
+          </RoleProtectedRoute>
+        } />
+        <Route path="/track/:orderId" element={
+          <RoleProtectedRoute requiredRole="user">
+            <UserNavbar />
+            <OrderTracking />
           </RoleProtectedRoute>
         } />
         <Route path="/profile" element={

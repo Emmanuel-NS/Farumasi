@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE_URL from '../config/config';
 
 export default function UserOrders() {
   const { user } = useAuth();
@@ -15,7 +17,7 @@ export default function UserOrders() {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/orders/user/${user.id}`);
+      const response = await axios.get(`${API_BASE_URL}/api/orders/user/${user.id}`);
       setOrders(response.data);
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -26,7 +28,7 @@ export default function UserOrders() {
 
   const fetchOrderDetails = async (orderId) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/orders/${orderId}`);
+      const response = await axios.get(`${API_BASE_URL}/api/orders/${orderId}`);
       setSelectedOrder(response.data);
     } catch (error) {
       console.error('Error fetching order details:', error);
@@ -157,6 +159,18 @@ export default function UserOrders() {
                     <p className="text-sm text-blue-800">
                       📄 Prescription order - awaiting pharmacy review
                     </p>
+                  </div>
+                )}
+
+                {/* Track Order Button */}
+                {['approved', 'shipped', 'out_for_delivery'].includes(order.status) && (
+                  <div className="mt-4">
+                    <Link 
+                      to={`/track/${order.id}`}
+                      className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+                    >
+                      📍 Track Order
+                    </Link>
                   </div>
                 )}
               </div>

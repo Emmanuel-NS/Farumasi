@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import OrderTrackingMap from "../components/OrderTrackingMap";
+import API_BASE_URL from '../config/config';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -8,10 +10,13 @@ export default function AdminDashboard() {
     pendingOrders: 0,
     totalPharmacies: 0,
     totalProducts: 0,
-    prescriptionOrders: 0
+    prescriptionOrders: 0,
+    activeDeliveries: 0
   });
   const [recentOrders, setRecentOrders] = useState([]);
+  const [allOrders, setAllOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showMap, setShowMap] = useState(true);
 
   useEffect(() => {
     fetchDashboardData();
@@ -20,28 +25,35 @@ export default function AdminDashboard() {
   const fetchDashboardData = async () => {
     try {
       // Fetch orders
-      const ordersResponse = await axios.get('http://localhost:5000/api/orders');
+      const ordersResponse = await axios.get(`${API_BASE_URL}/api/orders`);
       const orders = ordersResponse.data;
       
       // Fetch pharmacies
-      const pharmaciesResponse = await axios.get('http://localhost:5000/api/pharmacies');
+      const pharmaciesResponse = await axios.get(`${API_BASE_URL}/api/pharmacies`);
       const pharmacies = pharmaciesResponse.data.data || [];
       
       // Fetch products
-      const productsResponse = await axios.get('http://localhost:5000/api/products');
+      const productsResponse = await axios.get(`${API_BASE_URL}/api/products`);
       const products = productsResponse.data.data || [];
 
       // Calculate stats
       const pendingOrders = orders.filter(order => order.status === 'pending').length;
       const prescriptionOrders = orders.filter(order => order.status === 'pending_prescription_review').length;
+      const activeDeliveries = orders.filter(order => 
+        ['approved', 'shipped', 'out_for_delivery'].includes(order.status)
+      ).length;
 
       setStats({
         totalOrders: orders.length,
         pendingOrders,
         totalPharmacies: pharmacies.length,
         totalProducts: products.length,
-        prescriptionOrders
+        prescriptionOrders,
+        activeDeliveries
       });
+
+      // Set all orders for map
+      setAllOrders(orders);
 
       // Set recent orders (last 5)
       setRecentOrders(orders.slice(0, 5));
@@ -116,7 +128,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
           <StatCard
             title="Total Orders"
             value={stats.totalOrders}
@@ -135,6 +147,17 @@ export default function AdminDashboard() {
             icon={
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            }
+          />
+          
+          <StatCard
+            title="Active Deliveries"
+            value={stats.activeDeliveries}
+            color="border-orange-500"
+            icon={
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2v0a2 2 0 01-2-2v-5H8z" />
               </svg>
             }
           />
@@ -172,6 +195,54 @@ export default function AdminDashboard() {
               </svg>
             }
           />
+        </div>
+
+        {/* Delivery Tracking Map */}
+        <div className="mb-8">
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Live Delivery Tracking</h2>
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-gray-600">
+                  {stats.activeDeliveries} active deliveries
+                </span>
+                <button
+                  onClick={() => setShowMap(!showMap)}
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                >
+                  {showMap ? 'Hide Map' : 'Show Map'}
+                </button>
+              </div>
+            </div>
+            
+            {showMap && (
+              <>
+                {stats.activeDeliveries > 0 ? (
+                  <div>
+                    <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+                      <p className="text-blue-800 text-sm">
+                        📍 Tracking all active deliveries in real-time. Click on markers for details.
+                      </p>
+                    </div>
+                    <OrderTrackingMap 
+                      allOrders={allOrders}
+                      height="500px" 
+                      showRoute={true}
+                      interactive={true}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center bg-gray-50 rounded-lg p-12">
+                    <div className="text-center">
+                      <div className="text-6xl mb-4">📍</div>
+                      <h3 className="text-xl font-semibold text-gray-800 mb-2">No Active Deliveries</h3>
+                      <p className="text-gray-600">All orders are either pending approval or have been delivered.</p>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
 
         {/* Quick Actions */}
