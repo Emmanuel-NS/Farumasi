@@ -7,6 +7,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const pharmacyRoutes = require('./routes/pharmacyRoutes');
 const locationRoutes = require('./routes/locationRoutes');
+const deliveryRoutes = require('./routes/deliveryRoutes');
 
 const app = express();
 dotenv.config();
@@ -20,6 +21,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/pharmacies', pharmacyRoutes);
 app.use('/api/locations', locationRoutes);
+app.use('/api/delivery', deliveryRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
