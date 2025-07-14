@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/config';
 
 const AuthContext = createContext();
 
@@ -36,7 +37,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password, location = null) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
         email,
         password,
         ...location
@@ -62,7 +63,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/register', userData);
+      const response = await axios.post(`${API_BASE_URL}/api/auth/register`, userData);
       return { success: true, userId: response.data.userId };
     } catch (error) {
       console.error('Registration error:', error);
@@ -82,7 +83,7 @@ export const AuthProvider = ({ children }) => {
 
   const updateLocation = async (locationData) => {
     try {
-      await axios.put('http://localhost:5000/api/auth/update-location', locationData);
+      await axios.put(`${API_BASE_URL}/api/auth/update-location`, locationData);
       
       // Update user in context with new location
       const updatedUser = {
