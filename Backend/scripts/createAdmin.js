@@ -28,7 +28,7 @@ async function createAdminUser() {
     const hashedPassword = await bcrypt.hash(adminData.password, 10);
 
     // Insert admin user
-    await new Promise((resolve, reject) => {
+    const userId = await new Promise((resolve, reject) => {
       const sql = `
         INSERT INTO users (name, email, password, role, insurance_providers)
         VALUES (?, ?, ?, ?, ?)
@@ -39,6 +39,25 @@ async function createAdminUser() {
         hashedPassword,
         adminData.role,
         JSON.stringify([])
+      ], function(err) {
+        if (err) reject(err);
+        else resolve(this.lastID);
+      });
+    });
+
+    // Insert default location for admin user
+    await new Promise((resolve, reject) => {
+      const locationSql = `
+        INSERT INTO locations (user_id, latitude, longitude, country, province, district)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `;
+      db.run(locationSql, [
+        userId,
+        -1.9403, // Default Kigali latitude
+        29.8739, // Default Kigali longitude
+        'Rwanda',
+        'Kigali City',
+        'Gasabo'
       ], function(err) {
         if (err) reject(err);
         else resolve(this.lastID);
