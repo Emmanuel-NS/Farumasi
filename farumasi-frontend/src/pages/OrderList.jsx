@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 
+
 export default function OrderList() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -9,10 +10,12 @@ export default function OrderList() {
   const [showAllOrders, setShowAllOrders] = useState(false);
   const ORDERS_PER_PAGE = 5;
 
+
   // Filters
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [sort, setSort] = useState("date");
+
 
   // Debounce search input
   const [debouncedSearch, setDebouncedSearch] = useState(search);
@@ -21,7 +24,9 @@ export default function OrderList() {
     return () => clearTimeout(handler);
   }, [search]);
 
+
   const navigate = useNavigate();
+
 
   // Fetch orders
   useEffect(() => {
@@ -40,6 +45,7 @@ export default function OrderList() {
       })
       .catch(() => setLoading(false));
   }, [debouncedSearch, status, sort]);
+
 
   // Memoize filtered and sorted orders
   const filteredOrders = useMemo(() => {
@@ -63,6 +69,7 @@ export default function OrderList() {
     return result;
   }, [orders, debouncedSearch, status, sort]);
 
+
   // Pagination logic
   const totalPages = Math.ceil(filteredOrders.length / ORDERS_PER_PAGE);
   const paginatedOrders = showAllOrders
@@ -71,6 +78,7 @@ export default function OrderList() {
         orderPage * ORDERS_PER_PAGE,
         (orderPage + 1) * ORDERS_PER_PAGE
       );
+
 
   // Handlers
   const handleNext = () => setOrderPage((prev) => Math.min(prev + 1, totalPages - 1));
@@ -87,11 +95,14 @@ export default function OrderList() {
     setOrderPage(0);
   };
 
+
   if (loading) return <div className="p-8">Loading...</div>;
+
 
   return (
     <div className="max-w-5xl mx-auto mt-8 p-6 bg-white rounded shadow">
       <h2 className="text-xl font-bold mb-4 text-green-700">Orders</h2>
+
 
       {/* Filters and Search Bar */}
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 flex flex-wrap gap-3 items-center">
@@ -136,6 +147,7 @@ export default function OrderList() {
           Reset
         </button>
       </div>
+
 
       {/* Table */}
       <div className={showAllOrders ? "max-h-96 overflow-y-auto" : ""}>
@@ -196,6 +208,7 @@ export default function OrderList() {
         </table>
       </div>
 
+
       {/* Pagination and Show More/Less */}
       {filteredOrders.length > 0 && (
         <div className="flex items-center justify-between mt-4">
@@ -239,3 +252,7 @@ export default function OrderList() {
     </div>
   );
 }
+
+
+
+

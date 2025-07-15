@@ -3,6 +3,11 @@ import { FaHome, FaCapsules, FaBoxOpen, FaTruck, FaUsers, FaCog, FaChevronLeft, 
 import { Bar, Pie, Line } from "react-chartjs-2";
 import { Chart, CategoryScale, LinearScale, BarElement, ArcElement, PointElement, LineElement, Tooltip, Legend } from "chart.js";
 import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { FaHome, FaCapsules, FaBoxOpen, FaTruck, FaUsers, FaCog, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { Bar, Pie, Line } from "react-chartjs-2";
+import { Chart, CategoryScale, LinearScale, BarElement, ArcElement, PointElement, LineElement, Tooltip, Legend } from "chart.js";
+import axios from "axios";
 import { Link } from "react-router-dom";
 import OrderTrackingMap from "../components/OrderTrackingMap";
 import API_BASE_URL from '../config/config';
@@ -14,6 +19,9 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({
     totalPharmacies: 0,
     totalProducts: 0,
+    totalOrders: 0,
+    totalCustomers: 0,
+    pendingOrders: 0,
     totalOrders: 0,
     totalCustomers: 0,
     pendingOrders: 0,
@@ -44,21 +52,23 @@ export default function AdminDashboard() {
       // Fetch orders
       const ordersResponse = await axios.get(`${API_BASE_URL}/api/orders`);
       const orders = ordersResponse.data;
-      
+     
       // Fetch pharmacies
       const pharmaciesResponse = await axios.get(`${API_BASE_URL}/api/pharmacies`);
       const pharmacies = pharmaciesResponse.data.data || [];
-      
+     
       // Fetch products
       const productsResponse = await axios.get(`${API_BASE_URL}/api/products`);
       const products = productsResponse.data.data || [];
 
+
       // Calculate stats
       const pendingOrders = orders.filter(order => order.status === 'pending').length;
       const prescriptionOrders = orders.filter(order => order.status === 'pending_prescription_review').length;
-      const activeDeliveries = orders.filter(order => 
+      const activeDeliveries = orders.filter(order =>
         ['approved', 'shipped', 'out_for_delivery'].includes(order.status)
       ).length;
+
 
       setStats({
         totalOrders: orders.length,
@@ -69,11 +79,14 @@ export default function AdminDashboard() {
         activeDeliveries
       });
 
+
       // Set all orders for map
       setAllOrders(orders);
 
+
       // Set recent orders (last 5)
       setRecentOrders(orders.slice(0, 5));
+
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -274,6 +287,7 @@ export default function AdminDashboard() {
     </div>
   );
 
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'delivered':
@@ -291,6 +305,7 @@ export default function AdminDashboard() {
     }
   };
 
+
   if (loading) {
     return (
       <div className="p-8">
@@ -301,6 +316,7 @@ export default function AdminDashboard() {
       </div>
     );
   }
+
 
   return (
     <div className="flex min-h-screen bg-white relative">
@@ -437,6 +453,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
+
         {/* Delivery Tracking Map */}
         <div className="mb-8">
           <div className="bg-white rounded-lg shadow p-6">
@@ -454,7 +471,7 @@ export default function AdminDashboard() {
                 </button>
               </div>
             </div>
-            
+           
             {showMap && (
               <>
                 {stats.activeDeliveries > 0 ? (
@@ -464,9 +481,9 @@ export default function AdminDashboard() {
                         📍 Tracking all active deliveries in real-time. Click on markers for details.
                       </p>
                     </div>
-                    <OrderTrackingMap 
+                    <OrderTrackingMap
                       allOrders={allOrders}
-                      height="500px" 
+                      height="500px"
                       showRoute={true}
                       interactive={true}
                     />
@@ -484,6 +501,7 @@ export default function AdminDashboard() {
             )}
           </div>
         </div>
+
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -510,6 +528,7 @@ export default function AdminDashboard() {
               </button>
             </div>
           </div>
+
 
           {/* Recent Orders */}
           <div className="bg-white rounded-lg shadow p-6 lg:col-span-2">
@@ -543,6 +562,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
+
         {/* Management Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="bg-white rounded-lg shadow p-6">
@@ -561,6 +581,7 @@ export default function AdminDashboard() {
             </Link>
           </div>
 
+
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center mb-4">
               <svg className="w-8 h-8 text-sky-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -573,6 +594,7 @@ export default function AdminDashboard() {
               Manage Products →
             </button>
           </div>
+
 
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center mb-4">

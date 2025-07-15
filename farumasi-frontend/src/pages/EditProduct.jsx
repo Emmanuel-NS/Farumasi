@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import API_BASE_URL from '../config/config';
 
+
 export default function EditProduct() {
   const { id } = useParams();
   const [form, setForm] = useState({
@@ -18,6 +19,7 @@ export default function EditProduct() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
+
 
   useEffect(() => {
     axios.get(`${API_BASE_URL}/api/products/${id}`)
@@ -40,6 +42,7 @@ export default function EditProduct() {
       .then(res => setPharmacies(res.data.data || []));
   }, [id]);
 
+
   const handleChange = e => {
     const { name, value, type, checked, files } = e.target;
     if (type === "checkbox") {
@@ -50,6 +53,7 @@ export default function EditProduct() {
       setForm(f => ({ ...f, [name]: value }));
     }
   };
+
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -67,8 +71,10 @@ export default function EditProduct() {
     }
   };
 
+
   if (loading) return <div className="p-8 text-center text-gray-600">Loading...</div>;
   if (!form.name && !loading) return <div className="p-8 text-center text-red-600">Product not found.</div>;
+
 
   return (
     <div className="max-w-xl mx-auto mt-8 p-6 bg-white rounded shadow">
@@ -98,3 +104,6 @@ export default function EditProduct() {
     </div>
   );
 }
+
+
+

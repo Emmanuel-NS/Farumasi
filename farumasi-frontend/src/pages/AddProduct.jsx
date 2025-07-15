@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import API_BASE_URL from '../config/config';
 
+
 export default function AddProduct() {
   const [form, setForm] = useState({
     name: "",
@@ -15,10 +16,12 @@ export default function AddProduct() {
   const [pharmacies, setPharmacies] = useState([]);
   const [message, setMessage] = useState("");
 
+
   useEffect(() => {
     axios.get(`${API_BASE_URL}/api/pharmacies?limit=100`)
       .then(res => setPharmacies(res.data.data || []));
   }, []);
+
 
   const handleChange = e => {
     const { name, value, type, checked, files } = e.target;
@@ -30,6 +33,7 @@ export default function AddProduct() {
       setForm(f => ({ ...f, [name]: value }));
     }
   };
+
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -53,6 +57,7 @@ export default function AddProduct() {
       setMessage("Failed to add product.");
     }
   };
+
 
   return (
     <div className="max-w-xl mx-auto mt-8 p-6 bg-white rounded shadow">
@@ -79,3 +84,6 @@ export default function AddProduct() {
     </div>
   );
 }
+
+
+
