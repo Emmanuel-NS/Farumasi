@@ -3,17 +3,9 @@ import Navbar from "./Navbar";
 import { FaHome, FaCapsules, FaBoxOpen, FaTruck, FaUsers, FaCog, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
-<<<<<<< HEAD
 export default function AdminLayout({ children, activeMenu }) {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
 
-=======
-
-export default function AdminLayout({ children, activeMenu }) {
-  const [sidebarExpanded, setSidebarExpanded] = useState(true);
-
-
->>>>>>> 53cd81e0d6c278e1f75998006262f367b65d36f9
   return (
     <div className="flex min-h-screen bg-white relative">
       {/* Sidebar */}
@@ -55,10 +47,6 @@ export default function AdminLayout({ children, activeMenu }) {
   );
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 53cd81e0d6c278e1f75998006262f367b65d36f9
 function SidebarLink({ icon, label, active, expanded }) {
   const routes = {
     "Dashboard": "/admin",
@@ -71,25 +59,12 @@ function SidebarLink({ icon, label, active, expanded }) {
   return (
     <Link
       to={routes[label]}
-<<<<<<< HEAD
       className={`flex items-center gap-3 px-4 py-2 rounded-lg cursor-pointer transition 
         ${active ? "bg-white text-green-700 font-bold" : "hover:bg-green-600"} 
-=======
-      className={`flex items-center gap-3 px-4 py-2 rounded-lg cursor-pointer transition
-        ${active ? "bg-white text-green-700 font-bold" : "hover:bg-green-600"}
->>>>>>> 53cd81e0d6c278e1f75998006262f367b65d36f9
         ${!expanded ? "justify-center" : ""}`}
     >
       <span className="text-xl">{icon}</span>
       {expanded && <span>{label}</span>}
     </Link>
   );
-<<<<<<< HEAD
 }
-=======
-}
-
-
-
-
->>>>>>> 53cd81e0d6c278e1f75998006262f367b65d36f9
