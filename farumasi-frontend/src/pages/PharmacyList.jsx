@@ -5,11 +5,14 @@ import { Link, useNavigate } from "react-router-dom";
 export default function PharmacyList() {
   const [pharmacies, setPharmacies] = useState([]);
   const [count, setCount] = useState(0);
-  const [offset, setOffset] = useState(0);
-  const [limit, setLimit] = useState(5);
   const [loading, setLoading] = useState(true);
-  const [showAll, setShowAll] = useState(false);
   const [selectedPharmacy, setSelectedPharmacy] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+
+  // Pagination and show all
+  const [pharmacyPage, setPharmacyPage] = useState(0);
+  const [showAllPharmacies, setShowAllPharmacies] = useState(false);
+  const PHARMACIES_PER_PAGE = 5;
 
   // Filters and search
   const [search, setSearch] = useState("");
@@ -20,21 +23,17 @@ export default function PharmacyList() {
 
   // Debounce search input
   const [debouncedSearch, setDebouncedSearch] = useState(search);
-
-  const navigate = useNavigate();
-
-  // Update debounced search term after delay
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedSearch(search), 400);
     return () => clearTimeout(handler);
   }, [search]);
 
+  const navigate = useNavigate();
+
   // Fetch pharmacies
   useEffect(() => {
     setLoading(true);
     let params = {
-      limit: showAll ? 1000 : limit,
-      offset: showAll ? 0 : offset,
       search: debouncedSearch,
       country,
       province,
@@ -51,16 +50,16 @@ export default function PharmacyList() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [offset, limit, showAll, debouncedSearch, country, province, status, sort]);
+  }, [debouncedSearch, country, province, status, sort]);
 
   // Memoize filtered and sorted pharmacies
   const filteredPharmacies = useMemo(() => {
     let result = pharmacies;
-    if (search) {
+    if (debouncedSearch) {
       result = result.filter(
         (pharmacy) =>
-          pharmacy.name.toLowerCase().includes(search.toLowerCase()) ||
-          pharmacy.email.toLowerCase().includes(search.toLowerCase())
+          pharmacy.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+          pharmacy.email.toLowerCase().includes(debouncedSearch.toLowerCase())
       );
     }
     if (country) {
@@ -82,7 +81,16 @@ export default function PharmacyList() {
       result = [...result].sort((a, b) => a.email.localeCompare(b.email));
     }
     return result;
-  }, [pharmacies, search, country, province, status, sort]);
+  }, [pharmacies, debouncedSearch, country, province, status, sort]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredPharmacies.length / PHARMACIES_PER_PAGE);
+  const paginatedPharmacies = showAllPharmacies
+    ? filteredPharmacies
+    : filteredPharmacies.slice(
+        pharmacyPage * PHARMACIES_PER_PAGE,
+        (pharmacyPage + 1) * PHARMACIES_PER_PAGE
+      );
 
   // Unique countries/provinces for filters
   const countries = [
@@ -92,25 +100,36 @@ export default function PharmacyList() {
     ...new Set(pharmacies.map((p) => p.location?.province).filter(Boolean)),
   ];
 
-  // Pagination handlers
-  const handleNext = () => setOffset((prev) => prev + limit);
-  const handlePrev = () => setOffset((prev) => Math.max(0, prev - limit));
-
-  // Show all/less toggle
-  const handleShowAll = () => setShowAll(true);
+  // Handlers
+  const handleNext = () => setPharmacyPage((prev) => Math.min(prev + 1, totalPages - 1));
+  const handlePrev = () => setPharmacyPage((prev) => Math.max(prev - 1, 0));
+  const handleShowAll = () => setShowAllPharmacies(true);
   const handleShowLess = () => {
-    setShowAll(false);
-    setOffset(0);
+    setShowAllPharmacies(false);
+    setPharmacyPage(0);
   };
-
-  // Reset filters/search
   const handleReset = () => {
     setSearch("");
     setCountry("");
     setProvince("");
     setStatus("");
     setSort("name");
-    setOffset(0);
+    setPharmacyPage(0);
+  };
+
+  // Remove pharmacy and its products
+  const handleDeletePharmacy = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this pharmacy and all its products?")) return;
+    setDeletingId(id);
+    try {
+      await axios.delete(`http://localhost:5000/api/pharmacies/${id}`);
+      // Optionally, you may want to also call DELETE /api/products?pharmacy_id=id if your backend supports it,
+      // but usually backend should cascade delete products when pharmacy is deleted.
+      setPharmacies(pharmacies.filter(ph => ph.id !== id));
+    } catch (err) {
+      alert("Failed to delete pharmacy.");
+    }
+    setDeletingId(null);
   };
 
   if (loading) return <div className="p-8">Loading...</div>;
@@ -119,7 +138,7 @@ export default function PharmacyList() {
     <div className="max-w-5xl mx-auto mt-8 p-6 bg-white rounded shadow">
       <h2 className="text-xl font-bold mb-4 text-green-700">Registered Pharmacies</h2>
 
-      {/* Styled Filters and Search Bar */}
+      {/* Filters and Search Bar */}
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 flex flex-wrap gap-3 items-center">
         <input
           className="border px-2 py-1 rounded w-48"
@@ -137,7 +156,7 @@ export default function PharmacyList() {
           value={country}
           onChange={(e) => {
             setCountry(e.target.value);
-            setOffset(0);
+            setPharmacyPage(0);
           }}
         >
           <option value="">All Countries</option>
@@ -150,7 +169,7 @@ export default function PharmacyList() {
           value={province}
           onChange={(e) => {
             setProvince(e.target.value);
-            setOffset(0);
+            setPharmacyPage(0);
           }}
         >
           <option value="">All Provinces</option>
@@ -163,7 +182,7 @@ export default function PharmacyList() {
           value={status}
           onChange={(e) => {
             setStatus(e.target.value);
-            setOffset(0);
+            setPharmacyPage(0);
           }}
         >
           <option value="">All Status</option>
@@ -188,23 +207,26 @@ export default function PharmacyList() {
       </div>
 
       {/* Table */}
-      <div className={showAll ? "max-h-96 overflow-y-auto" : ""}>
-        <table className="w-full border">
+      <div className={showAllPharmacies ? "max-h-96 overflow-y-auto" : ""}>
+        <table className="w-full">
           <thead>
             <tr className="bg-green-100">
-              <th className="p-2 border">Name</th>
-              <th className="p-2 border">Email</th>
-              <th className="p-2 border">Phone</th>
-              <th className="p-2 border">Country</th>
-              <th className="p-2 border">Province</th>
-              <th className="p-2 border">Actions</th>
+              <th className="p-3 font-semibold text-left">Name</th>
+              <th className="p-3 font-semibold text-left">Email</th>
+              <th className="p-3 font-semibold text-left">Phone</th>
+              <th className="p-3 font-semibold text-left">Country</th>
+              <th className="p-3 font-semibold text-left">Province</th>
+              <th className="p-3 font-semibold text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {(showAll ? filteredPharmacies : filteredPharmacies.slice(0, limit)).map((pharmacy) => (
-              <tr key={pharmacy.id}>
-                <td className="p-2 border">{pharmacy.name}</td>
-                <td className="p-2 border">
+            {paginatedPharmacies.map((pharmacy) => (
+              <tr
+                key={pharmacy.id}
+                className="hover:bg-green-50 transition"
+              >
+                <td className="p-3">{pharmacy.name}</td>
+                <td className="p-3">
                   <a
                     href={`mailto:${pharmacy.email}`}
                     className="text-blue-700 underline"
@@ -212,10 +234,10 @@ export default function PharmacyList() {
                     {pharmacy.email}
                   </a>
                 </td>
-                <td className="p-2 border">{pharmacy.phone}</td>
-                <td className="p-2 border">{pharmacy.location?.country}</td>
-                <td className="p-2 border">{pharmacy.location?.province}</td>
-                <td className="p-2 border">
+                <td className="p-3">{pharmacy.phone}</td>
+                <td className="p-3">{pharmacy.location?.country}</td>
+                <td className="p-3">{pharmacy.location?.province}</td>
+                <td className="p-3 flex gap-2">
                   <Link
                     to="#"
                     onClick={() => setSelectedPharmacy(pharmacy)}
@@ -223,13 +245,21 @@ export default function PharmacyList() {
                   >
                     View
                   </Link>
-                  {" | "}
+                  <span>|</span>
                   <Link
                     to={`/admin/pharmacies/${pharmacy.id}/edit`}
                     className="text-green-600 hover:underline"
                   >
                     Edit
                   </Link>
+                  <span>|</span>
+                  <button
+                    className={`text-red-600 hover:underline ${deletingId === pharmacy.id ? "opacity-50 cursor-not-allowed" : ""}`}
+                    onClick={() => handleDeletePharmacy(pharmacy.id)}
+                    disabled={deletingId === pharmacy.id}
+                  >
+                    {deletingId === pharmacy.id ? "Removing..." : "Remove"}
+                  </button>
                 </td>
               </tr>
             ))}
@@ -238,41 +268,43 @@ export default function PharmacyList() {
       </div>
 
       {/* Pagination and Show More/Less */}
-      {!showAll && (
+      {filteredPharmacies.length > 0 && (
         <div className="flex items-center justify-between mt-4">
-          <button
-            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-            onClick={handlePrev}
-            disabled={offset === 0}
-          >
-            Prev
-          </button>
-          <span>
-            Showing {offset + 1} - {Math.min(offset + limit, count)} of {count}
-          </span>
-          <button
-            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-            onClick={handleNext}
-            disabled={offset + limit >= count}
-          >
-            Next
-          </button>
-          <button
-            className="ml-4 px-3 py-1 bg-blue-500 text-white rounded"
-            onClick={handleShowAll}
-          >
-            Show More
-          </button>
-        </div>
-      )}
-      {showAll && (
-        <div className="flex justify-end mt-2">
-          <button
-            className="px-3 py-1 bg-blue-500 text-white rounded"
-            onClick={handleShowLess}
-          >
-            Show Less
-          </button>
+          {!showAllPharmacies && (
+            <>
+              <button
+                className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+                onClick={handlePrev}
+                disabled={pharmacyPage === 0}
+              >
+                Prev
+              </button>
+              <span>
+                Showing {pharmacyPage * PHARMACIES_PER_PAGE + 1} - {Math.min((pharmacyPage + 1) * PHARMACIES_PER_PAGE, filteredPharmacies.length)} of {filteredPharmacies.length}
+              </span>
+              <button
+                className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+                onClick={handleNext}
+                disabled={pharmacyPage >= totalPages - 1}
+              >
+                Next
+              </button>
+              <button
+                className="ml-4 px-3 py-1 bg-blue-500 text-white rounded"
+                onClick={handleShowAll}
+              >
+                Show More
+              </button>
+            </>
+          )}
+          {showAllPharmacies && (
+            <button
+              className="px-3 py-1 bg-blue-500 text-white rounded"
+              onClick={handleShowLess}
+            >
+              Show Less
+            </button>
+          )}
         </div>
       )}
 

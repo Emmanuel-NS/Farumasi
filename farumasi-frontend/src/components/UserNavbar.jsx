@@ -13,6 +13,7 @@ export default function UserNavbar() {
 
   const handleLogout = () => {
     logout();
+    navigate('/home');
   };
 
   const switchToAdminDashboard = () => {

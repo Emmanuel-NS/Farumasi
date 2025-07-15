@@ -1,15 +1,22 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { FaHome, FaCapsules, FaBoxOpen, FaTruck, FaUsers, FaCog, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { Bar, Pie, Line } from "react-chartjs-2";
+import { Chart, CategoryScale, LinearScale, BarElement, ArcElement, PointElement, LineElement, Tooltip, Legend } from "chart.js";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import OrderTrackingMap from "../components/OrderTrackingMap";
 import API_BASE_URL from '../config/config';
 
+// Register the missing PointElement and LineElement for Line charts
+Chart.register(CategoryScale, LinearScale, BarElement, ArcElement, PointElement, LineElement, Tooltip, Legend);
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
-    totalOrders: 0,
-    pendingOrders: 0,
     totalPharmacies: 0,
     totalProducts: 0,
+    totalOrders: 0,
+    totalCustomers: 0,
+    pendingOrders: 0,
     prescriptionOrders: 0,
     activeDeliveries: 0
   });
@@ -17,9 +24,19 @@ export default function AdminDashboard() {
   const [allOrders, setAllOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showMap, setShowMap] = useState(true);
+  const [sidebarExpanded, setSidebarExpanded] = useState(true);
+  const [ordersStats, setOrdersStats] = useState([]);
+  const [productsStats, setProductsStats] = useState([]);
+  const [pharmacyLineStats, setPharmacyLineStats] = useState([]);
+  const [activeMenu, setActiveMenu] = useState("Dashboard");
 
   useEffect(() => {
     fetchDashboardData();
+  }, []);
+
+  useEffect(() => {
+    fetchChartData();
+    fetchPharmacyPerformance();
   }, []);
 
   const fetchDashboardData = async () => {
@@ -62,6 +79,173 @@ export default function AdminDashboard() {
       console.error('Error fetching dashboard data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchChartData = async () => {
+    // Orders per month
+    const ordersRes = await axios.get(`${API_BASE_URL}/api/orders`);
+    const orders = ordersRes.data || [];
+    const ordersByMonth = {};
+    orders.forEach(order => {
+      const date = order.created_at ? new Date(order.created_at) : null;
+      if (!date) return;
+      const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+      ordersByMonth[month] = (ordersByMonth[month] || 0) + 1;
+    });
+    const ordersStatsArr = Object.entries(ordersByMonth)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, count]) => ({ month, count }));
+    setOrdersStats(ordersStatsArr);
+
+    // Products per pharmacy
+    const productsRes = await axios.get(`${API_BASE_URL}/api/products`);
+    const products = productsRes.data.data || [];
+    const productsByPharmacy = {};
+    products.forEach(product => {
+      const name = product.pharmacy_name || "Unknown";
+      productsByPharmacy[name] = (productsByPharmacy[name] || 0) + 1;
+    });
+    const productsStatsArr = Object.entries(productsByPharmacy)
+      .map(([pharmacy_name, count]) => ({ pharmacy_name, count }));
+    setProductsStats(productsStatsArr);
+  };
+
+  // Limit bar chart to last 6 months for readability
+  const limitedOrdersStats = ordersStats.slice(-6);
+
+  // Chart data
+  const ordersBarData = {
+    labels: limitedOrdersStats.map(stat => stat.month),
+    datasets: [
+      {
+        label: "Orders",
+        data: limitedOrdersStats.map(stat => stat.count),
+        backgroundColor: "#38bdf8",
+        borderRadius: 8,
+        barThickness: 32,
+        maxBarThickness: 40,
+      },
+    ],
+  };
+
+  const productsPieData = {
+    labels: productsStats.map(stat => stat.pharmacy_name),
+    datasets: [
+      {
+        label: "Products",
+        data: productsStats.map(stat => stat.count),
+        backgroundColor: [
+          "#22d3ee", "#38bdf8", "#4ade80", "#fbbf24", "#f87171", "#a78bfa"
+        ],
+        borderWidth: 1,
+        borderColor: "#fff"
+      },
+    ],
+  };
+
+  // Pharmacy performance line chart (orders per month per pharmacy)
+  const fetchPharmacyPerformance = async () => {
+    const ordersRes = await axios.get(`${API_BASE_URL}/api/orders`);
+    const orders = ordersRes.data || [];
+    // Group by pharmacy and month
+    const perf = {};
+    orders.forEach(order => {
+      const date = order.created_at ? new Date(order.created_at) : null;
+      if (!date || !order.pharmacy_name) return;
+      const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+      if (!perf[order.pharmacy_name]) perf[order.pharmacy_name] = {};
+      perf[order.pharmacy_name][month] = (perf[order.pharmacy_name][month] || 0) + 1;
+    });
+    // Get all months in sorted order
+    const allMonths = Array.from(
+      new Set(
+        Object.values(perf)
+          .flatMap(obj => Object.keys(obj))
+      )
+    ).sort();
+    // Build datasets
+    const datasets = Object.entries(perf).map(([pharmacy, months], idx) => ({
+      label: pharmacy,
+      data: allMonths.map(m => months[m] || 0),
+      borderColor: ["#38bdf8", "#4ade80", "#fbbf24", "#a78bfa", "#f87171", "#22d3ee"][idx % 6],
+      backgroundColor: "rgba(56,189,248,0.1)",
+      tension: 0.3,
+      fill: false,
+      pointRadius: 3,
+      pointHoverRadius: 6,
+    }));
+    setPharmacyLineStats({ labels: allMonths.slice(-6), datasets: datasets.map(ds => ({ ...ds, data: ds.data.slice(-6) })) });
+  };
+
+  const pharmacyLineOptions = {
+    responsive: true,
+    plugins: {
+      legend: { position: "bottom" },
+      tooltip: {
+        callbacks: {
+          label: (context) => `${context.dataset.label}: ${context.parsed.y}`,
+        },
+      },
+    },
+    scales: {
+      x: {
+        title: { display: true, text: "Month", color: "#0e7490", font: { weight: "bold" } },
+        grid: { display: false }
+      },
+      y: {
+        beginAtZero: true,
+        title: { display: true, text: "Orders", color: "#0e7490", font: { weight: "bold" } },
+        grid: { color: "#bae6fd" }
+      }
+    }
+  };
+
+  // Chart options for better visuals
+  const ordersBarOptions = {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      title: {
+        display: false,
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => `Orders: ${context.parsed.y}`,
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        title: { display: true, text: "Month", color: "#0e7490", font: { weight: "bold" } }
+      },
+      y: {
+        beginAtZero: true,
+        grid: { color: "#bae6fd" },
+        title: { display: true, text: "Orders", color: "#0e7490", font: { weight: "bold" } }
+      }
+    }
+  };
+
+  const productsPieOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "bottom",
+        labels: {
+          color: "#0e7490",
+          font: { size: 14, weight: "bold" }
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => `${context.label}: ${context.parsed}`,
+        },
+      },
+      title: {
+        display: false,
+      }
     }
   };
 
@@ -119,82 +303,138 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="mt-2 text-gray-600">Manage your pharmacy network and monitor operations</p>
+    <div className="flex min-h-screen bg-white relative">
+      {/* Sidebar */}
+      {sidebarExpanded && (
+        <aside className="fixed top-0 left-0 h-screen w-64 bg-green-700 text-white flex flex-col py-8 px-4 z-20 transition-all duration-300">
+          <div className="mb-8 text-2xl font-bold">Farumasi Admin</div>
+          <nav className="flex flex-col gap-2">
+            <SidebarLink icon={<FaHome />} label="Dashboard" active={activeMenu === "Dashboard"} expanded={sidebarExpanded} />
+            <SidebarLink icon={<FaCapsules />} label="Pharmacies" active={activeMenu === "Pharmacies"} expanded={sidebarExpanded} />
+            <SidebarLink icon={<FaBoxOpen />} label="Products" active={activeMenu === "Products"} expanded={sidebarExpanded} />
+            <SidebarLink
+              icon={<FaTruck />}
+              label="Orders"
+              active={activeMenu === "Orders"}
+              expanded={sidebarExpanded}
+            />
+            <SidebarLink icon={<FaUsers />} label="Customers" active={activeMenu === "Customers"} expanded={sidebarExpanded} />
+            <SidebarLink icon={<FaCog />} label="Settings" active={activeMenu === "Settings"} expanded={sidebarExpanded} />
+          </nav>
+          {/* Collapse Button */}
+          <button
+            className="absolute -right-4 top-1/2 transform -translate-y-1/2 bg-white text-green-700 rounded-full shadow p-2 hover:bg-green-100 transition"
+            onClick={() => setSidebarExpanded(false)}
+            aria-label="Minimize sidebar"
+          >
+            <FaChevronLeft />
+          </button>
+        </aside>
+      )}
+      {/* Expand Button (when sidebar is hidden) */}
+      {!sidebarExpanded && (
+        <button
+          className="fixed left-2 top-1/2 transform -translate-y-1/2 bg-white text-green-700 rounded-full shadow p-2 z-30 hover:bg-green-100 transition"
+          onClick={() => setSidebarExpanded(true)}
+          aria-label="Expand sidebar"
+        >
+          <FaChevronRight />
+        </button>
+      )}
+
+      {/* Main Content */}
+      <main className={`flex-1 px-10 py-8 bg-white ${sidebarExpanded ? "ml-64" : ""}`}>
+        <h1 className="text-3xl font-bold mb-8 text-green-700">Dashboard</h1>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+          <StatsCard label="Total Pharmacies" value={stats.totalPharmacies} />
+          <StatsCard label="Total Products" value={stats.totalProducts} />
+          <StatsCard label="Total Orders" value={stats.totalOrders} />
+          <StatsCard label="Total Customers" value={stats.totalCustomers} />
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
-          <StatCard
-            title="Total Orders"
-            value={stats.totalOrders}
-            color="border-blue-500"
-            icon={
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            }
-          />
-          
-          <StatCard
-            title="Pending Orders"
-            value={stats.pendingOrders}
-            color="border-yellow-500"
-            icon={
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            }
-          />
-          
-          <StatCard
-            title="Active Deliveries"
-            value={stats.activeDeliveries}
-            color="border-orange-500"
-            icon={
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2v0a2 2 0 01-2-2v-5H8z" />
-              </svg>
-            }
-          />
-          
-          <StatCard
-            title="Prescription Reviews"
-            value={stats.prescriptionOrders}
-            color="border-red-500"
-            icon={
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            }
-          />
-          
-          <StatCard
-            title="Pharmacies"
-            value={stats.totalPharmacies}
-            color="border-green-500"
-            link="/admin/pharmacies"
-            icon={
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-              </svg>
-            }
-          />
-          
-          <StatCard
-            title="Products"
-            value={stats.totalProducts}
-            color="border-purple-500"
-            icon={
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
-            }
-          />
+        {/* Charts Section - all three charts together */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mt-8 mb-10">
+          <h2 className="text-2xl font-bold mb-8 text-green-700">Statistics Overview</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            <div className="bg-sky-50 rounded-xl p-6 shadow flex flex-col items-center">
+              <h3 className="font-semibold mb-4 text-sky-700 text-lg flex items-center gap-2">
+                <span className="inline-block w-3 h-3 bg-sky-400 rounded-full"></span>
+                Orders Per Month
+              </h3>
+              <div className="w-full h-72 flex items-center">
+                <Bar data={ordersBarData} options={ordersBarOptions} />
+              </div>
+            </div>
+            <div className="bg-emerald-50 rounded-xl p-6 shadow flex flex-col items-center">
+              <h3 className="font-semibold mb-4 text-emerald-700 text-lg flex items-center gap-2">
+                <span className="inline-block w-3 h-3 bg-emerald-400 rounded-full"></span>
+                Products Per Pharmacy
+              </h3>
+              <div className="w-full h-72 flex items-center">
+                <Pie data={productsPieData} options={productsPieOptions} />
+              </div>
+            </div>
+            <div className="bg-purple-50 rounded-xl p-6 shadow flex flex-col items-center">
+              <h3 className="font-semibold mb-4 text-purple-700 text-lg flex items-center gap-2">
+                <span className="inline-block w-3 h-3 bg-purple-400 rounded-full"></span>
+                Pharmacy Performance (Competition)
+              </h3>
+              <div className="w-full h-72 flex items-center">
+                {pharmacyLineStats.labels && pharmacyLineStats.datasets && pharmacyLineStats.labels.length > 0 ? (
+                  <Line data={pharmacyLineStats} options={pharmacyLineOptions} />
+                ) : (
+                  <div className="text-gray-500">Not enough data to display pharmacy trends.</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Orders Table */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4 text-green-700">Recent Orders</h2>
+          <div className="bg-white rounded-xl shadow border">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-sky-100">
+                  <th className="p-4 font-semibold">Order ID</th>
+                  <th className="p-4 font-semibold">Customer Name</th>
+                  <th className="p-4 font-semibold">Order Date</th>
+                  <th className="p-4 font-semibold">Status</th>
+                  <th className="p-4 font-semibold">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentOrders.map(order => (
+                  <tr key={order.id} className="border-t">
+                    <td className="p-4">{order.id}</td>
+                    <td className="p-4">{order.customer_name || order.user_name}</td>
+                    <td className="p-4">
+                      {order.order_date
+                        ? order.order_date
+                        : order.created_at
+                          ? new Date(order.created_at).toLocaleDateString()
+                          : ""}
+                    </td>
+                    <td className="p-4">
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
+                        {order.status.replace('_', ' ').toUpperCase()}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      {order.total
+                        ? `RWF ${order.total.toLocaleString()}`
+                        : order.total_price
+                          ? `RWF ${order.total_price.toLocaleString()}`
+                          : ""}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Delivery Tracking Map */}
@@ -347,7 +587,69 @@ export default function AdminDashboard() {
             </button>
           </div>
         </div>
-      </div>
+
+        {/* Charts Section */}
+        <div className="bg-white rounded-lg shadow p-6 mt-8">
+          <h2 className="text-xl font-bold mb-6 text-green-700">Admin Dashboard</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-sky-50 rounded-lg p-4">
+              <h3 className="font-semibold mb-2">Orders Per Month</h3>
+              <Bar data={ordersBarData} />
+            </div>
+            <div className="bg-sky-50 rounded-lg p-4">
+              <h3 className="font-semibold mb-2">Products Per Pharmacy</h3>
+              <Pie data={productsPieData} />
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
+}
+
+// Sidebar link component
+function SidebarLink({ icon, label, active, expanded }) {
+  const routes = {
+    "Dashboard": "/admin", // <-- Fix here
+    "Pharmacies": "/admin/pharmacies",
+    "Products": "/admin/products",
+    "Orders": "/admin/orders",
+    "Customers": "/admin/customers",
+    "Settings": "/admin/settings"
+  };
+  return (
+    <Link
+      to={routes[label]}
+      className={`flex items-center gap-3 px-4 py-2 rounded-lg cursor-pointer transition 
+        ${active ? "bg-white text-green-700 font-bold" : "hover:bg-green-600"} 
+        ${!expanded ? "justify-center" : ""}`}
+    >
+      <span className="text-xl">{icon}</span>
+      {expanded && <span>{label}</span>}
+    </Link>
+  );
+}
+
+// Stats card component
+function StatsCard({ label, value }) {
+  return (
+    <div className="bg-sky-100 rounded-xl shadow flex flex-col items-center justify-center py-8">
+      <div className="text-2xl font-bold text-green-700">{value}</div>
+      <div className="text-gray-700 mt-2">{label}</div>
+    </div>
+  );
+}
+
+// Status color helper
+function getStatusColor(status) {
+  switch (status) {
+    case "Shipped":
+      return "bg-green-100 text-green-700";
+    case "Delivered":
+      return "bg-blue-100 text-blue-700";
+    case "Processing":
+      return "bg-yellow-100 text-yellow-700";
+    default:
+      return "bg-gray-100 text-gray-700";
+  }
 }

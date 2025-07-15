@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import RoleIndicator from "./components/RoleIndicator";
+import AdminLayout from "./components/AdminLayout";
 
 // Admin Components
 import Navbar from "./components/Navbar";
@@ -13,6 +14,11 @@ import RegisterPharmacy from "./pages/RegisterPharmacy";
 import PharmacyList from "./pages/PharmacyList";
 import PharmacyDetails from "./pages/PharmacyDetails";
 import EditPharmacy from "./pages/EditPharmacy";
+import ProductList from "./pages/ProductList";
+import AddProduct from "./pages/AddProduct";
+import EditProduct from "./pages/EditProduct";
+import ProductDetails from "./pages/ProductDetails";
+import OrderList from "./pages/OrderList";
 
 // User Components
 import UserNavbar from "./components/UserNavbar";
@@ -96,8 +102,9 @@ function AppRoutes() {
         } />
         <Route path="/admin/pharmacies" element={
           <RoleProtectedRoute requiredRole="admin">
-            <Navbar />
-            <PharmacyList />
+            <AdminLayout activeMenu="Pharmacies">
+              <PharmacyList />
+            </AdminLayout>
           </RoleProtectedRoute>
         } />
         <Route path="/admin/pharmacies/:id" element={
@@ -110,6 +117,37 @@ function AppRoutes() {
           <RoleProtectedRoute requiredRole="admin">
             <Navbar />
             <EditPharmacy />
+          </RoleProtectedRoute>
+        } />
+        <Route path="/admin/products" element={
+          <RoleProtectedRoute requiredRole="admin">
+            <AdminLayout activeMenu="Products">
+              <ProductList />
+            </AdminLayout>
+          </RoleProtectedRoute>
+        } />
+        <Route path="/admin/products/add" element={
+          <RoleProtectedRoute requiredRole="admin">
+            <AdminLayout activeMenu="Products">
+              <AddProduct />
+            </AdminLayout>
+          </RoleProtectedRoute>
+        } />
+        <Route path="/admin/products/:id" element={
+          <AdminLayout activeMenu="Products">
+            <ProductDetails />
+          </AdminLayout>
+        } />
+        <Route path="/admin/products/:id/edit" element={
+          <AdminLayout activeMenu="Products">
+            <EditProduct />
+          </AdminLayout>
+        } />
+        <Route path="/admin/orders" element={
+          <RoleProtectedRoute requiredRole="admin">
+            <AdminLayout activeMenu="Orders">
+              <OrderList />
+            </AdminLayout>
           </RoleProtectedRoute>
         } />
         
