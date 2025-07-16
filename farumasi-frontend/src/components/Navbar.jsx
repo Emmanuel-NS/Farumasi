@@ -9,7 +9,7 @@ export default function Navbar() {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/home');
   };
 
   const switchToUserDashboard = () => {
