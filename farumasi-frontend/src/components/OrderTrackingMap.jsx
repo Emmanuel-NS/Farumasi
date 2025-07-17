@@ -47,8 +47,14 @@ const OrderTrackingMap = ({
   const [error, setError] = useState(null);
   const [realTimePositions, setRealTimePositions] = useState({});
 
-  // Default center (Accra, Ghana)
-  const defaultCenter = [5.6037, -0.1870];
+  // Default center (Kigali, Rwanda)
+  const defaultCenter = [-1.9403, 30.0619];
+  
+  // Rwanda geographical bounds to restrict map view
+  const rwandaBounds = [
+    [-2.917, 28.862], // Southwest corner
+    [-1.047, 30.899]  // Northeast corner
+  ];
 
   useEffect(() => {
     if (allOrders) {
@@ -153,7 +159,8 @@ const OrderTrackingMap = ({
         },
         user: {
           ...userLocation,
-          name: "Delivery Address"
+          name: userLocation.name || "Delivery Address",
+          address: userLocation.address || generateAddressFromLocation(userLocation)
         },
         delivery: deliveryLocation,
         estimatedTime: calculateEstimatedTime(orderData.status, pharmacyLocation, userLocation, deliveryLocation),
@@ -176,23 +183,40 @@ const OrderTrackingMap = ({
       };
     } catch (error) {
       console.error('Error fetching pharmacy location:', error);
-      // Return default location for Ghana
-      return { lat: 5.6037, lng: -0.1870, name: "Pharmacy Location" };
+      // Return default location for Kigali, Rwanda
+      return { lat: -1.9403, lng: 30.0619, name: "Pharmacy Location" };
     }
   };
 
   const fetchUserLocation = async (userId) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/locations/user/${userId}`);
+      
+      // Build a readable address from location components
+      const addressParts = [
+        response.data.village,
+        response.data.sector,
+        response.data.district,
+        response.data.province
+      ].filter(Boolean);
+      
+      const fullAddress = addressParts.length > 0 ? addressParts.join(', ') : "Kigali, Rwanda";
+      
       return {
         lat: response.data.latitude,
         lng: response.data.longitude,
-        name: response.data.address || "Delivery Address"
+        name: "Delivery Address",
+        address: fullAddress
       };
     } catch (error) {
       console.error('Error fetching user location:', error);
-      // Return default location for Ghana
-      return { lat: 5.5560, lng: -0.2057, name: "Delivery Address" };
+      // Return default location for Kigali, Rwanda
+      return { 
+        lat: -1.9441, 
+        lng: 30.0619, 
+        name: "Delivery Address",
+        address: "Kigali, Rwanda"
+      };
     }
   };
 
@@ -272,15 +296,24 @@ const OrderTrackingMap = ({
     }
   };
 
+  const generateAddressFromLocation = (location) => {
+    if (location.address) return location.address;
+    
+    // Generate a simple address based on coordinates for Kigali
+    const kigaliDistricts = ['Nyarugenge', 'Gasabo', 'Kicukiro'];
+    const randomDistrict = kigaliDistricts[Math.floor(Math.random() * kigaliDistricts.length)];
+    return `${randomDistrict}, Kigali, Rwanda`;
+  };
+
   const generateFallbackData = (orderData) => {
-    // Fallback mock coordinates for Ghana when real GPS data is unavailable
+    // Fallback mock coordinates for Kigali, Rwanda when real GPS data is unavailable
     const mockLocations = [
-      { lat: 5.6037, lng: -0.1870, name: "Accra Central" },
-      { lat: 5.5560, lng: -0.2057, name: "Tema" },
-      { lat: 5.6500, lng: -0.1000, name: "East Legon" },
-      { lat: 5.5600, lng: -0.2400, name: "Kaneshie" },
-      { lat: 5.6200, lng: -0.1600, name: "Osu" },
-      { lat: 5.5800, lng: -0.2200, name: "Dansoman" },
+      { lat: -1.9403, lng: 30.0619, name: "Kigali City Center" },
+      { lat: -1.9441, lng: 30.0619, name: "Nyarugenge" },
+      { lat: -1.9355, lng: 30.0606, name: "Gasabo" },
+      { lat: -1.9489, lng: 30.0677, name: "Kicukiro" },
+      { lat: -1.9394, lng: 30.0827, name: "Remera" },
+      { lat: -1.9518, lng: 30.0589, name: "Kimisagara" },
     ];
 
     const pharmacyLocation = mockLocations[Math.floor(Math.random() * mockLocations.length)];
@@ -304,7 +337,8 @@ const OrderTrackingMap = ({
       },
       user: {
         ...userLocation,
-        name: "Delivery Address"
+        name: "Delivery Address",
+        address: `${userLocation.name}, Kigali, Rwanda`
       },
       delivery: deliveryLocation,
       estimatedTime: generateEstimatedTime(orderData.status),
@@ -480,7 +514,11 @@ const OrderTrackingMap = ({
       
       <MapContainer
         center={center}
-        zoom={12}
+        zoom={13}
+        minZoom={8}
+        maxZoom={18}
+        maxBounds={rwandaBounds}
+        maxBoundsViscosity={1.0}
         style={{ height, width: '100%' }}
         scrollWheelZoom={interactive}
         bounds={bounds}
@@ -500,7 +538,7 @@ const OrderTrackingMap = ({
                 <Popup>
                   <div className="text-sm">
                     <h3 className="font-semibold text-blue-600">📍 {orderData.pharmacy.name}</h3>
-                    <p>Order #{orderData.orderId}</p>
+                    <p className="font-medium">Order #{orderData.orderId}</p>
                     <p className="text-gray-600">Pickup Location</p>
                   </div>
                 </Popup>
@@ -511,8 +549,8 @@ const OrderTrackingMap = ({
                 <Popup>
                   <div className="text-sm">
                     <h3 className="font-semibold text-green-600">🏠 {orderData.user.name}</h3>
-                    <p>Order #{orderData.orderId}</p>
-                    <p className="text-gray-600">Delivery Address</p>
+                    <p className="font-medium">Order #{orderData.orderId}</p>
+                    <p className="text-gray-600">{orderData.user.address || 'Delivery Address'}</p>
                   </div>
                 </Popup>
               </Marker>
@@ -526,8 +564,12 @@ const OrderTrackingMap = ({
                       {orderData.delivery.agentName && (
                         <p className="font-medium">{orderData.delivery.agentName}</p>
                       )}
-                      <p>Order #{orderData.orderId}</p>
-                      <p className="text-gray-600">{orderData.estimatedTime}</p>
+                      <div className="mt-2 p-2 bg-blue-50 rounded border-l-4 border-blue-400">
+                        <p className="font-semibold text-blue-800">Order #{orderData.orderId}</p>
+                        <p className="text-blue-700">📍 Destination: {orderData.user.name}</p>
+                        <p className="text-sm text-blue-600">{orderData.user.address || 'Delivery Address'}</p>
+                      </div>
+                      <p className="mt-2 text-gray-600">{orderData.estimatedTime}</p>
                       {orderData.delivery.lastUpdated && (
                         <p className="text-xs text-gray-500">
                           Updated: {new Date(orderData.delivery.lastUpdated).toLocaleTimeString()}
@@ -567,8 +609,8 @@ const OrderTrackingMap = ({
               <Popup>
                 <div className="text-sm">
                   <h3 className="font-semibold text-blue-600">📍 {mapData.pharmacy.name}</h3>
-                  <p>Your order is being prepared here</p>
-                  <p className="text-gray-600">Pickup Location</p>
+                  <p className="font-medium">Order #{mapData.orderId}</p>
+                  <p className="text-gray-600">Your order is being prepared here</p>
                 </div>
               </Popup>
             </Marker>
@@ -578,8 +620,8 @@ const OrderTrackingMap = ({
               <Popup>
                 <div className="text-sm">
                   <h3 className="font-semibold text-green-600">🏠 {mapData.user.name}</h3>
-                  <p>Your delivery destination</p>
-                  <p className="text-gray-600">Delivery Address</p>
+                  <p className="font-medium">Order #{mapData.orderId}</p>
+                  <p className="text-gray-600">{mapData.user.address || 'Your delivery destination'}</p>
                 </div>
               </Popup>
             </Marker>
@@ -593,7 +635,12 @@ const OrderTrackingMap = ({
                     {mapData.delivery.agentName && (
                       <p className="font-medium">{mapData.delivery.agentName}</p>
                     )}
-                    <p>ETA: {mapData.estimatedTime}</p>
+                    <div className="mt-2 p-2 bg-green-50 rounded border-l-4 border-green-400">
+                      <p className="font-semibold text-green-800">Order #{mapData.orderId}</p>
+                      <p className="text-green-700">📍 Delivering to: {mapData.user.name}</p>
+                      <p className="text-sm text-green-600">{mapData.user.address || 'Your delivery address'}</p>
+                    </div>
+                    <p className="mt-2 font-medium text-gray-700">ETA: {mapData.estimatedTime}</p>
                     {mapData.delivery.lastUpdated && (
                       <p className="text-xs text-gray-500">
                         Last updated: {new Date(mapData.delivery.lastUpdated).toLocaleTimeString()}
