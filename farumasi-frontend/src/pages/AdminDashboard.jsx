@@ -331,7 +331,6 @@ export default function AdminDashboard() {
           </button>
         </aside>
       )}
-      {/* Expand Button (when sidebar is hidden) */}
       {!sidebarExpanded && (
         <button
           className="fixed left-2 top-1/2 transform -translate-y-1/2 bg-white text-green-700 rounded-full shadow p-2 z-30 hover:bg-green-100 transition"
@@ -354,89 +353,6 @@ export default function AdminDashboard() {
           <StatsCard label="Total Customers" value={stats.totalCustomers} />
         </div>
 
-        {/* Charts Section - all three charts together */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mt-8 mb-10">
-          <h2 className="text-2xl font-bold mb-8 text-green-700">Statistics Overview</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            <div className="bg-sky-50 rounded-xl p-6 shadow flex flex-col items-center">
-              <h3 className="font-semibold mb-4 text-sky-700 text-lg flex items-center gap-2">
-                <span className="inline-block w-3 h-3 bg-sky-400 rounded-full"></span>
-                Orders Per Month
-              </h3>
-              <div className="w-full h-72 flex items-center">
-                <Bar data={ordersBarData} options={ordersBarOptions} />
-              </div>
-            </div>
-            <div className="bg-emerald-50 rounded-xl p-6 shadow flex flex-col items-center">
-              <h3 className="font-semibold mb-4 text-emerald-700 text-lg flex items-center gap-2">
-                <span className="inline-block w-3 h-3 bg-emerald-400 rounded-full"></span>
-                Products Per Pharmacy
-              </h3>
-              <div className="w-full h-72 flex items-center">
-                <Pie data={productsPieData} options={productsPieOptions} />
-              </div>
-            </div>
-            <div className="bg-purple-50 rounded-xl p-6 shadow flex flex-col items-center">
-              <h3 className="font-semibold mb-4 text-purple-700 text-lg flex items-center gap-2">
-                <span className="inline-block w-3 h-3 bg-purple-400 rounded-full"></span>
-                Pharmacy Performance (Competition)
-              </h3>
-              <div className="w-full h-72 flex items-center">
-                {pharmacyLineStats.labels && pharmacyLineStats.datasets && pharmacyLineStats.labels.length > 0 ? (
-                  <Line data={pharmacyLineStats} options={pharmacyLineOptions} />
-                ) : (
-                  <div className="text-gray-500">Not enough data to display pharmacy trends.</div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Orders Table */}
-        <div>
-          <h2 className="text-xl font-semibold mb-4 text-green-700">Recent Orders</h2>
-          <div className="bg-white rounded-xl shadow border">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="bg-sky-100">
-                  <th className="p-4 font-semibold">Order ID</th>
-                  <th className="p-4 font-semibold">Customer Name</th>
-                  <th className="p-4 font-semibold">Order Date</th>
-                  <th className="p-4 font-semibold">Status</th>
-                  <th className="p-4 font-semibold">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentOrders.map(order => (
-                  <tr key={order.id} className="border-t">
-                    <td className="p-4">{order.id}</td>
-                    <td className="p-4">{order.customer_name || order.user_name}</td>
-                    <td className="p-4">
-                      {order.order_date
-                        ? order.order_date
-                        : order.created_at
-                          ? new Date(order.created_at).toLocaleDateString()
-                          : ""}
-                    </td>
-                    <td className="p-4">
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
-                        {order.status.replace('_', ' ').toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      {order.total
-                        ? `RWF ${order.total.toLocaleString()}`
-                        : order.total_price
-                          ? `RWF ${order.total_price.toLocaleString()}`
-                          : ""}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
         {/* Delivery Tracking Map */}
         <div className="mb-8">
           <div className="bg-white rounded-lg shadow p-6">
@@ -454,7 +370,6 @@ export default function AdminDashboard() {
                 </button>
               </div>
             </div>
-            
             {showMap && (
               <>
                 {stats.activeDeliveries > 0 ? (
@@ -464,11 +379,12 @@ export default function AdminDashboard() {
                         📍 Tracking all active deliveries in real-time. Click on markers for details.
                       </p>
                     </div>
-                    <OrderTrackingMap 
+                    <OrderTrackingMap
                       allOrders={allOrders}
-                      height="500px" 
+                      height="500px"
                       showRoute={true}
                       interactive={true}
+                      zoomToAdmin={true} // <-- this prop triggers zoom to admin location
                     />
                   </div>
                 ) : (
@@ -582,15 +498,24 @@ export default function AdminDashboard() {
               <h3 className="text-lg font-semibold">Order Management</h3>
             </div>
             <p className="text-gray-600 mb-4">Track orders, update status, and review prescription submissions.</p>
-            <button className="text-purple-600 hover:text-purple-700 font-medium">
+            <Link
+              to="/admin/orders"
+              className="text-purple-600 hover:text-purple-700 font-medium"
+            >
               Manage Orders →
-            </button>
+            </Link>
+            <Link
+              to="/admin/orders?status=pending_prescription_review"
+              className="text-yellow-600 hover:text-yellow-700 font-medium"
+            >
+              Review Prescriptions →
+            </Link>
           </div>
         </div>
 
-        {/* Charts Section */}
+        {/* Statistics Overview - Bottom chart section */}
         <div className="bg-white rounded-lg shadow p-6 mt-8">
-          <h2 className="text-xl font-bold mb-6 text-green-700">Admin Dashboard</h2>
+          <h2 className="text-xl font-bold mb-6 text-green-700">Statistics Overview</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-sky-50 rounded-lg p-4">
               <h3 className="font-semibold mb-2">Orders Per Month</h3>

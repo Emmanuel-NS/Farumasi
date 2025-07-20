@@ -19,6 +19,7 @@ import AddProduct from "./pages/AddProduct";
 import EditProduct from "./pages/EditProduct";
 import ProductDetails from "./pages/ProductDetails";
 import OrderList from "./pages/OrderList";
+import OrderPrescriptionReview from "./pages/OrderPrescriptionReview";
 
 // User Components
 import UserNavbar from "./components/UserNavbar";
@@ -147,6 +148,13 @@ function AppRoutes() {
           <RoleProtectedRoute requiredRole="admin">
             <AdminLayout activeMenu="Orders">
               <OrderList />
+            </AdminLayout>
+          </RoleProtectedRoute>
+        } />
+        <Route path="/admin/orders/:id/review" element={
+          <RoleProtectedRoute requiredRole="admin">
+            <AdminLayout activeMenu="Orders">
+              <OrderPrescriptionReview />
             </AdminLayout>
           </RoleProtectedRoute>
         } />

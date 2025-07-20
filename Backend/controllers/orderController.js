@@ -230,7 +230,7 @@ exports.getOrderById = (req, res) => {
     SELECT o.*, u.name as user_name, p.name as pharmacy_name
     FROM orders o
     JOIN users u ON o.user_id = u.id
-    JOIN pharmacies p ON o.pharmacy_id = p.id
+    LEFT JOIN pharmacies p ON o.pharmacy_id = p.id
     WHERE o.id = ?
   `;
   db.get(sqlOrder, [orderId], (err, order) => {
@@ -266,7 +266,7 @@ exports.getAllOrders = (req, res) => {
     SELECT o.*, u.name as user_name, p.name as pharmacy_name
     FROM orders o
     JOIN users u ON o.user_id = u.id
-    JOIN pharmacies p ON o.pharmacy_id = p.id
+    LEFT JOIN pharmacies p ON o.pharmacy_id = p.id
   `;
   if (status) {
     sql += ` WHERE o.status = ?`;

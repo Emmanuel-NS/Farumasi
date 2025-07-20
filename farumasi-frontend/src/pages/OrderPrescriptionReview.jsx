@@ -2,9 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 
-
 const INSURANCE_OPTIONS = ["RSSB", "MMI", "MUTUELLE", "SANLAM", "NONE"];
-
 
 export default function OrderPrescriptionReview() {
   const { id } = useParams();
@@ -18,7 +16,6 @@ export default function OrderPrescriptionReview() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
@@ -28,7 +25,6 @@ export default function OrderPrescriptionReview() {
         const orderRes = await axios.get(`http://localhost:5000/api/orders/${id}`);
         setOrder(orderRes.data);
         setInsurance(orderRes.data.insurance_provider || "NONE");
-
 
         // Fetch products for fulfillment
         const productsRes = await axios.get("http://localhost:5000/api/products");
@@ -41,7 +37,6 @@ export default function OrderPrescriptionReview() {
     fetchData();
   }, [id]);
 
-
   // Filtering products by search
   const filteredProducts = products.filter(
     p =>
@@ -49,14 +44,12 @@ export default function OrderPrescriptionReview() {
       (p.category && p.category.toLowerCase().includes(productSearch.toLowerCase()))
   );
 
-
   // Add product to prescription fulfillment
   const handleAddProduct = (productId) => {
     if (!selectedItems.some(item => item.product_id === productId)) {
       setSelectedItems([...selectedItems, { product_id: productId, quantity: 1 }]);
     }
   };
-
 
   // Update quantity
   const handleQuantityChange = (productId, qty) => {
@@ -67,12 +60,10 @@ export default function OrderPrescriptionReview() {
     );
   };
 
-
   // Remove product
   const handleRemoveProduct = (productId) => {
     setSelectedItems(items => items.filter(item => item.product_id !== productId));
   };
-
 
   // Submit prescription review
   const handleSubmit = async () => {
@@ -96,10 +87,8 @@ export default function OrderPrescriptionReview() {
     setSubmitting(false);
   };
 
-
   if (loading) return <div className="p-8">Loading...</div>;
   if (!order) return <div className="p-8 text-red-600">Order not found.</div>;
-
 
   return (
     <div className="max-w-3xl mx-auto mt-8 p-6 bg-white rounded shadow">
@@ -220,4 +209,3 @@ export default function OrderPrescriptionReview() {
     </div>
   );
 }
-
