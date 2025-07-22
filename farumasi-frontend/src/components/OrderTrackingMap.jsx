@@ -3,6 +3,19 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, Tooltip } from 'react
 import L from 'leaflet';
 import axios from 'axios';
 
+// Fix for default markers not showing up in React Leaflet
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
+let DefaultIcon = L.divIcon({
+  className: 'leaflet-div-icon',
+  html: '<div style="background-color: #3388ff; width: 25px; height: 25px; border-radius: 50%; border: 3px solid white;"></div>',
+  iconSize: [25, 25],
+  iconAnchor: [12, 25]
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
+
 // Custom icons
 const pharmacyIcon = new L.Icon({
   iconUrl: 'https://cdn-icons-png.flaticon.com/512/2991/2991148.png',
@@ -156,15 +169,21 @@ export default function OrderTrackingMap({
 
   return (
     <div className="rounded-lg overflow-hidden border border-gray-200 bg-white" style={{ width: "100%", height }}>
-      <MapContainer
-        center={KIGALI_CENTER}
-        zoom={DEFAULT_ZOOM}
-        style={{ width: "100%", height: "100%" }}
-        scrollWheelZoom={true}
-        zoomControl={true}
-        minZoom={10}
-        maxZoom={18}
-      >
+      <div style={{ width: "100%", height: "calc(100% - 120px)" }}>
+        <MapContainer
+          center={KIGALI_CENTER}
+          zoom={DEFAULT_ZOOM}
+          style={{ width: "100%", height: "100%" }}
+          scrollWheelZoom={true}
+          zoomControl={true}
+          minZoom={10}
+          maxZoom={18}
+          whenReady={() => {
+            setTimeout(() => {
+              window.dispatchEvent(new Event('resize'));
+            }, 100);
+          }}
+        >
         <TileLayer
           attribution='&copy; OpenStreetMap contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -209,6 +228,7 @@ export default function OrderTrackingMap({
           />
         ))}
       </MapContainer>
+      </div>
       <div className="flex flex-col md:flex-row justify-between items-center px-4 py-2 bg-gray-50 border-t border-gray-200">
         <span className="text-xs text-gray-600">
           <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-1 animate-pulse"></span>
