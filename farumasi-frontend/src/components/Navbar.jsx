@@ -26,6 +26,7 @@ export default function Navbar() {
         <Link to="/admin" className="hover:underline">Dashboard</Link>
         <Link to="/admin/pharmacies" className="hover:underline">Pharmacies</Link>
         <Link to="/admin/register-pharmacy" className="hover:underline">Add Pharmacy</Link>
+        <Link to="/help" className="hover:underline">Help</Link>
         
         {/* User dropdown */}
         <div className="relative">

@@ -107,6 +107,12 @@ export default function UserNavbar() {
               >
                 Profile
               </button>
+              <Link
+                to="/help"
+                className="px-3 py-2 rounded-md text-sm font-medium text-green-100 hover:bg-green-500 hover:text-white"
+              >
+                Help
+              </Link>
             </div>
           </div>
 
@@ -204,6 +210,12 @@ export default function UserNavbar() {
           >
             Profile
           </button>
+          <Link
+            to="/help"
+            className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-green-100 hover:bg-green-500 hover:text-white"
+          >
+            Help
+          </Link>
         </div>
         <div className="pt-4 pb-3 border-t border-green-700">
           <div className="flex items-center px-5">
