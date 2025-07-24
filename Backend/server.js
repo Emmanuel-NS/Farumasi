@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const fs = require('fs'); // Add this line
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
@@ -11,8 +12,13 @@ const deliveryRoutes = require('./routes/deliveryRoutes');
 
 const app = express();
 dotenv.config();
+
+if (!fs.existsSync('uploads')) {
+  fs.mkdirSync('uploads');
+}
+
 app.use(cors({
-  origin: 'https://your-vercel-frontend-url.vercel.app',
+  origin: 'https://farumasi.vercel.app', 
   credentials: true
 }));
 app.use(express.json());
