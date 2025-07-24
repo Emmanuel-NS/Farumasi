@@ -111,7 +111,7 @@ export default function RegisterPharmacy() {
         latitude: form.latitude ? parseFloat(form.latitude) : undefined,
         longitude: form.longitude ? parseFloat(form.longitude) : undefined,
       };
-      await axios.post("http://localhost:5000/api/pharmacies", payload);
+      await axios.post("https://farumasi.onrender.com/api/pharmacies", payload);
       setMessage("Pharmacy registered successfully!");
       setMessageType("success");
       setForm({

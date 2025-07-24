@@ -9,7 +9,7 @@ export default function PharmacyDetails() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/api/pharmacies/${id}`)
+      .get(`https://farumasi.onrender.com/api/pharmacies/${id}`)
       .then((res) => {
         setPharmacy(res.data.data || res.data); // support both {data: {...}} and {...}
         setLoading(false);

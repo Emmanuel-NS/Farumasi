@@ -103,7 +103,7 @@ npm start
 #### .env Example (Frontend)
 
 ```
-REACT_APP_API_URL=http://localhost:5000/api
+REACT_APP_API_URL=https://farumasi.onrender.com/api
 ```
 
 ---

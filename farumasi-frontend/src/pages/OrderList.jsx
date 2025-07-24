@@ -37,7 +37,7 @@ export default function OrderList() {
     // Only add status if user selects it
     if (status) params.status = status;
     axios
-      .get("http://localhost:5000/api/orders", { params })
+      .get("https://farumasi.onrender.com/api/orders", { params })
       .then((res) => {
         setOrders(res.data || []);
         setLoading(false);
@@ -102,7 +102,7 @@ export default function OrderList() {
   const handleStatusUpdate = async (orderId, newStatus) => {
     setUpdatingId(orderId);
     try {
-      await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { status: newStatus });
+      await axios.put(`https://farumasi.onrender.com/api/orders/${orderId}/status`, { status: newStatus });
       setOrders(orders =>
         orders.map(order =>
           order.id === orderId ? { ...order, status: newStatus } : order
@@ -119,7 +119,7 @@ export default function OrderList() {
     if (!window.confirm("Are you sure you want to delete this order?")) return;
     setDeletingId(orderId);
     try {
-      await axios.delete(`http://localhost:5000/api/orders/${orderId}`);
+      await axios.delete(`https://farumasi.onrender.com/api/orders/${orderId}`);
       setOrders(orders => orders.filter(order => order.id !== orderId));
     } catch (err) {
       alert("Failed to delete order.");
@@ -131,7 +131,7 @@ export default function OrderList() {
   const fetchOrderDetails = async (orderId) => {
     setSelectedOrder(null);
     try {
-      const res = await axios.get(`http://localhost:5000/api/orders/${orderId}`);
+      const res = await axios.get(`https://farumasi.onrender.com/api/orders/${orderId}`);
       setSelectedOrder(res.data);
     } catch (err) {
       alert("Failed to fetch order details.");
@@ -336,7 +336,7 @@ export default function OrderList() {
             <div className="mb-2"><b>Delivery Fee:</b> {selectedOrder.delivery_fee ? `RWF ${selectedOrder.delivery_fee}` : "N/A"}</div>
             {selectedOrder.prescription_file && (
               <div className="mb-2">
-                <b>Prescription File:</b> <a href={`http://localhost:5000/uploads/${selectedOrder.prescription_file}`} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">View</a>
+                <b>Prescription File:</b> <a href={`https://farumasi.onrender.com/uploads/${selectedOrder.prescription_file}`} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">View</a>
               </div>
             )}
             <div className="mb-2"><b>Insurance:</b> {selectedOrder.insurance_provider}</div>

@@ -23,7 +23,7 @@ export default function UserDashboard() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/products', {
+      const response = await axios.get('https://farumasi.onrender.com/api/products', {
         params: {
           search: searchTerm,
           category: selectedCategory,
@@ -38,7 +38,7 @@ export default function UserDashboard() {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/orders/user/${user.id}`);
+      const response = await axios.get(`https://farumasi.onrender.com/api/orders/user/${user.id}`);
       setOrders(response.data);
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -87,7 +87,7 @@ export default function UserDashboard() {
 
   const placeOrder = async (orderData) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/orders', orderData);
+      const response = await axios.post('https://farumasi.onrender.com/api/orders', orderData);
       
       if (response.status === 201) {
         setCart([]);

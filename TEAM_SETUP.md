@@ -10,7 +10,7 @@ cp .env.example .env
 
 The `.env` file will contain:
 ```
-REACT_APP_API_BASE_URL=http://localhost:5000
+REACT_APP_API_BASE_URL=http://https://farumasi.onrender.com
 ```
 
 ### 2. Run Backend Server
@@ -19,7 +19,7 @@ cd Backend
 npm install
 npm start
 ```
-Server will run on `http://localhost:5000`
+Server will run on `http://https://farumasi.onrender.com`
 
 ### 3. Create Admin User
 ```bash
@@ -53,7 +53,7 @@ Frontend will run on `http://localhost:3000`
 ## What Changed:
 
 1. **AuthContext now uses `API_BASE_URL`** instead of hardcoded URLs
-2. **API_BASE_URL reads from `.env` file** (defaults to localhost:5000)
+2. **API_BASE_URL reads from `.env` file** (defaults to https://farumasi.onrender.com)
 3. **Each team member can customize their `.env`** if needed
 
 Now your teammates should be able to login as admin! 🚀

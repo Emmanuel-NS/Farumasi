@@ -28,7 +28,7 @@ export default function PaymentModal({ order, onClose, onPaymentSuccess }) {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/payment/pay', {
+      const response = await axios.post('https://farumasi.onrender.com/api/payment/pay', {
         order_id: order.id,
         amount: order.total_price.toString(),
         payer: paymentData.phoneNumber,
@@ -52,7 +52,7 @@ export default function PaymentModal({ order, onClose, onPaymentSuccess }) {
 
   const checkPaymentStatus = async (referenceId) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/payment/status/${referenceId}`);
+      const response = await axios.get(`https://farumasi.onrender.com/api/payment/status/${referenceId}`);
       
       if (response.data.status === 'SUCCESSFUL') {
         setPaymentStatus('successful');

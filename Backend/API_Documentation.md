@@ -20,7 +20,7 @@ This document provides a comprehensive overview of the Farumasi backend API endp
 
 **Request Example:**
 ```bash
-curl -X POST "http://localhost:5000/api/auth/register" \
+curl -X POST "https://farumasi.onrender.com/api/auth/register" \
      -H "Content-Type: application/json" \
      -d '{
            "name": "Jane Doe",
@@ -76,7 +76,7 @@ curl -X POST "http://localhost:5000/api/auth/register" \
 
 **Request Example:**
 ```bash
-curl -X POST "http://localhost:5000/api/auth/login" \
+curl -X POST "https://farumasi.onrender.com/api/auth/login" \
      -H "Content-Type: application/json" \
      -d '{
            "email": "john.doe@example.com",
@@ -146,7 +146,7 @@ curl -X POST "http://localhost:5000/api/auth/login" \
 
 **Request Example:**
 ```bash
-curl -X PUT "http://localhost:5000/api/auth/update-location" \
+curl -X PUT "https://farumasi.onrender.com/api/auth/update-location" \
      -H "Content-Type: application/json" \
      -H "Authorization: Bearer YOUR_JWT_TOKEN" \
      -d '{
@@ -208,7 +208,7 @@ curl -X PUT "http://localhost:5000/api/auth/update-location" \
 
 **Request Example:**
 ```bash
-curl -X POST "http://localhost:5000/api/products" \
+curl -X POST "https://farumasi.onrender.com/api/products" \
      -H "Content-Type: multipart/form-data" \
      -F "name=Aspirin" \
      -F "description=Pain reliever" \
@@ -279,7 +279,7 @@ curl -X POST "http://localhost:5000/api/products" \
 
 **Request Example:**
 ```bash
-curl -X GET "http://localhost:5000/api/products?category=Medication&search=pain&limit=10&requires_prescription=false"
+curl -X GET "https://farumasi.onrender.com/api/products?category=Medication&search=pain&limit=10&requires_prescription=false"
 ```
 
 **Responses:**
@@ -301,7 +301,7 @@ curl -X GET "http://localhost:5000/api/products?category=Medication&search=pain&
       "image": "image_a.jpg",
       "pharmacy_id": 1,
       "pharmacy_name": "Pharmacy X",
-      "image_url": "http://localhost:5000/uploads/image_a.jpg"
+      "image_url": "https://farumasi.onrender.com/uploads/image_a.jpg"
     },
     {
       "id": 2,
@@ -337,7 +337,7 @@ curl -X GET "http://localhost:5000/api/products?category=Medication&search=pain&
 
 **Request Example:**
 ```bash
-curl -X GET "http://localhost:5000/api/products/123"
+curl -X GET "https://farumasi.onrender.com/api/products/123"
 ```
 
 **Responses:**
@@ -354,7 +354,7 @@ curl -X GET "http://localhost:5000/api/products/123"
   "image": "image_a.jpg",
   "pharmacy_id": 1,
   "pharmacy_name": "Pharmacy X",
-  "image_url": "http://localhost:5000/uploads/image_a.jpg"
+  "image_url": "https://farumasi.onrender.com/uploads/image_a.jpg"
 }
 ```
 
@@ -391,7 +391,7 @@ curl -X GET "http://localhost:5000/api/products/123"
 
 **Request Example:**
 ```bash
-curl -X PUT "http://localhost:5000/api/products/123" \
+curl -X PUT "https://farumasi.onrender.com/api/products/123" \
      -H "Content-Type: multipart/form-data" \
      -F "price=6.50" \
      -F "description=Updated pain reliever description" \
@@ -453,7 +453,7 @@ curl -X PUT "http://localhost:5000/api/products/123" \
 
 **Request Example:**
 ```bash
-curl -X DELETE "http://localhost:5000/api/products/123"
+curl -X DELETE "https://farumasi.onrender.com/api/products/123"
 ```
 
 **Responses:**
@@ -504,7 +504,7 @@ curl -X DELETE "http://localhost:5000/api/products/123"
 
 **Prescription-based order:**
 ```bash
-curl -X POST "http://localhost:5000/api/orders" \
+curl -X POST "https://farumasi.onrender.com/api/orders" \
      -H "Authorization: Bearer YOUR_JWT_TOKEN" \
      -H "Content-Type: multipart/form-data" \
      -F "prescription_file=@/path/to/your/prescription.pdf" \
@@ -515,7 +515,7 @@ curl -X POST "http://localhost:5000/api/orders" \
 
 **Item-based order:**
 ```bash
-curl -X POST "http://localhost:5000/api/orders" \
+curl -X POST "https://farumasi.onrender.com/api/orders" \
      -H "Authorization: Bearer YOUR_JWT_TOKEN" \
      -H "Content-Type: multipart/form-data" \
      -F 'items=[{"product_id": 1, "quantity": 2}, {"product_id": 3, "quantity": 1}]' \
@@ -623,7 +623,7 @@ curl -X POST "http://localhost:5000/api/orders" \
 
 **Request Example:**
 ```bash
-curl -X GET "http://localhost:5000/api/orders?status=pending_prescription_review"
+curl -X GET "https://farumasi.onrender.com/api/orders?status=pending_prescription_review"
 ```
 
 **Responses:**
@@ -680,7 +680,7 @@ curl -X GET "http://localhost:5000/api/orders?status=pending_prescription_review
 
 **Request Example:**
 ```bash
-curl -X GET "http://localhost:5000/api/orders/user/101"
+curl -X GET "https://farumasi.onrender.com/api/orders/user/101"
 ```
 
 **Responses:**
@@ -721,7 +721,7 @@ curl -X GET "http://localhost:5000/api/orders/user/101"
 
 **Request Example:**
 ```bash
-curl -X GET "http://localhost:5000/api/orders/pharmacy/201"
+curl -X GET "https://farumasi.onrender.com/api/orders/pharmacy/201"
 ```
 
 **Responses:**
@@ -762,7 +762,7 @@ curl -X GET "http://localhost:5000/api/orders/pharmacy/201"
 
 **Request Example:**
 ```bash
-curl -X GET "http://localhost:5000/api/orders/1"
+curl -X GET "https://farumasi.onrender.com/api/orders/1"
 ```
 
 **Responses:**
@@ -829,7 +829,7 @@ curl -X GET "http://localhost:5000/api/orders/1"
 
 **Request Example:**
 ```bash
-curl -X PUT "http://localhost:5000/api/orders/1/status" \
+curl -X PUT "https://farumasi.onrender.com/api/orders/1/status" \
      -H "Content-Type: application/json" \
      -d '{
            "status": "approved"
@@ -882,7 +882,7 @@ curl -X PUT "http://localhost:5000/api/orders/1/status" \
 
 **Request Example:**
 ```bash
-curl -X PUT "http://localhost:5000/api/orders/prescription-review" \
+curl -X PUT "https://farumasi.onrender.com/api/orders/prescription-review" \
      -H "Content-Type: application/json" \
      -d '{
            "order_id": 123,
@@ -969,7 +969,7 @@ curl -X PUT "http://localhost:5000/api/orders/prescription-review" \
 
 **Request Example:**
 ```bash
-curl -X DELETE "http://localhost:5000/api/orders/123"
+curl -X DELETE "https://farumasi.onrender.com/api/orders/123"
 ```
 
 **Responses:**
@@ -1018,7 +1018,7 @@ curl -X DELETE "http://localhost:5000/api/orders/123"
 
 **Request Example:**
 ```bash
-curl -X POST "http://localhost:5000/api/payment/pay" \
+curl -X POST "https://farumasi.onrender.com/api/payment/pay" \
      -H "Content-Type: application/json" \
      -d '{
            "order_id": 123,
@@ -1069,7 +1069,7 @@ curl -X POST "http://localhost:5000/api/payment/pay" \
 
 **Request Example:**
 ```bash
-curl -X GET "http://localhost:5000/api/payment/status/a1b2c3d4-e5f6-7890-1234-567890abcdef"
+curl -X GET "https://farumasi.onrender.com/api/payment/status/a1b2c3d4-e5f6-7890-1234-567890abcdef"
 ```
 
 **Responses:**
@@ -1120,7 +1120,7 @@ curl -X GET "http://localhost:5000/api/payment/status/a1b2c3d4-e5f6-7890-1234-56
 
 ### Request Example:
 ```bash
-curl -X POST "http://localhost:5000/api/pharmacies" \
+curl -X POST "https://farumasi.onrender.com/api/pharmacies" \
      -H "Content-Type: application/json" \
      -d '{
            "name": "Central Pharmacy",
@@ -1175,7 +1175,7 @@ curl -X POST "http://localhost:5000/api/pharmacies" \
 
 ### Request Example:
 ```bash
-curl -X GET "http://localhost:5000/api/pharmacies?limit=5&offset=0"
+curl -X GET "https://farumasi.onrender.com/api/pharmacies?limit=5&offset=0"
 ```
 
 ### Responses:
@@ -1253,7 +1253,7 @@ curl -X GET "http://localhost:5000/api/pharmacies?limit=5&offset=0"
 
 ### Request Example:
 ```bash
-curl -X GET "http://localhost:5000/api/pharmacies/1"
+curl -X GET "https://farumasi.onrender.com/api/pharmacies/1"
 ```
 
 ### Responses:
@@ -1324,7 +1324,7 @@ curl -X GET "http://localhost:5000/api/pharmacies/1"
 
 ### Request Example:
 ```bash
-curl -X PUT "http://localhost:5000/api/pharmacies/1" \
+curl -X PUT "https://farumasi.onrender.com/api/pharmacies/1" \
      -H "Content-Type: application/json" \
      -d '{
            "name": "Central Pharmacy Updated",
@@ -1382,7 +1382,7 @@ curl -X PUT "http://localhost:5000/api/pharmacies/1" \
 
 ### Request Example:
 ```bash
-curl -X PUT "http://localhost:5000/api/locations/update/user/101" \
+curl -X PUT "https://farumasi.onrender.com/api/locations/update/user/101" \
      -H "Content-Type: application/json" \
      -d '{
            "latitude": -1.9450,
@@ -1436,7 +1436,7 @@ curl -X PUT "http://localhost:5000/api/locations/update/user/101" \
 
 ### Request Example:
 ```bash
-curl -X GET "http://localhost:5000/api/locations/user/101"
+curl -X GET "https://farumasi.onrender.com/api/locations/user/101"
 ```
 
 ### Responses:
@@ -1491,7 +1491,7 @@ curl -X GET "http://localhost:5000/api/locations/user/101"
 
 ### Request Example:
 ```bash
-curl -X PUT "http://localhost:5000/api/locations/update/pharmacy/1" \
+curl -X PUT "https://farumasi.onrender.com/api/locations/update/pharmacy/1" \
      -H "Content-Type: application/json" \
      -d '{
            "latitude": -1.9550,
@@ -1545,7 +1545,7 @@ curl -X PUT "http://localhost:5000/api/locations/update/pharmacy/1" \
 
 ### Request Example:
 ```bash
-curl -X GET "http://localhost:5000/api/locations/pharmacy/1"
+curl -X GET "https://farumasi.onrender.com/api/locations/pharmacy/1"
 ```
 
 ### Responses:
@@ -1588,7 +1588,7 @@ curl -X GET "http://localhost:5000/api/locations/pharmacy/1"
 
 ### Request Example:
 ```bash
-curl -X GET "http://localhost:5000/api/locations"
+curl -X GET "https://farumasi.onrender.com/api/locations"
 ```
 
 ### Responses:

@@ -45,7 +45,7 @@ export default function PrescriptionUpload({ onUploadSuccess }) {
       formData.append('prescription_file', selectedFile);
       formData.append('insurance_provider', insuranceProvider);
 
-      const response = await axios.post('http://localhost:5000/api/orders', formData, {
+      const response = await axios.post('https://farumasi.onrender.com/api/orders', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

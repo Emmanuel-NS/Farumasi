@@ -22,7 +22,7 @@ export default function EditPharmacy() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/api/pharmacies/${id}`)
+      .get(`https://farumasi.onrender.com/api/pharmacies/${id}`)
       .then((res) => {
         const pharmacy = res.data.data || res.data;
         setForm({
@@ -132,7 +132,7 @@ export default function EditPharmacy() {
       };
       delete payload.location; // Remove nested location object
 
-      await axios.put(`http://localhost:5000/api/pharmacies/${id}`, payload);
+      await axios.put(`https://farumasi.onrender.com/api/pharmacies/${id}`, payload);
       setMessage("Pharmacy updated successfully!");
       setMessageType("success");
       setTimeout(() => navigate(`/admin/pharmacies/${id}`), 1200);

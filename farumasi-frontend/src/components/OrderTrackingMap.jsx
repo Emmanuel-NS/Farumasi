@@ -65,7 +65,7 @@ function estimateTime(distanceKm) {
   return Math.round((distanceKm / speed) * 60);
 }
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://farumasi.onrender.com/api";
 
 export default function OrderTrackingMap({
   allOrders,

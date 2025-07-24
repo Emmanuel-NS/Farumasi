@@ -22,12 +22,12 @@ export default function OrderPrescriptionReview() {
       setError("");
       try {
         // Fetch order details
-        const orderRes = await axios.get(`http://localhost:5000/api/orders/${id}`);
+        const orderRes = await axios.get(`https://farumasi.onrender.com/api/orders/${id}`);
         setOrder(orderRes.data);
         setInsurance(orderRes.data.insurance_provider || "NONE");
 
         // Fetch products for fulfillment
-        const productsRes = await axios.get("http://localhost:5000/api/products");
+        const productsRes = await axios.get("https://farumasi.onrender.com/api/products");
         setProducts(productsRes.data.data || []);
       } catch (err) {
         setError("Failed to load order or products.");
@@ -70,7 +70,7 @@ export default function OrderPrescriptionReview() {
     setSubmitting(true);
     setError("");
     try {
-      await axios.put("http://localhost:5000/api/orders/prescription-review", {
+      await axios.put("https://farumasi.onrender.com/api/orders/prescription-review", {
         order_id: id,
         items: selectedItems,
         insurance_provider: insurance,
@@ -102,7 +102,7 @@ export default function OrderPrescriptionReview() {
         <b>Prescription File:</b>{" "}
         {order.prescription_file ? (
           <a
-            href={`http://localhost:5000/uploads/${order.prescription_file}`}
+            href={`https://farumasi.onrender.com/uploads/${order.prescription_file}`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-700 underline"

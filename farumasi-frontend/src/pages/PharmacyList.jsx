@@ -43,7 +43,7 @@ export default function PharmacyList() {
     // Remove empty params
     Object.keys(params).forEach((k) => params[k] === "" && delete params[k]);
     axios
-      .get("http://localhost:5000/api/pharmacies", { params })
+      .get("https://farumasi.onrender.com/api/pharmacies", { params })
       .then((res) => {
         setPharmacies(res.data.data || []);
         setCount(res.data.count || 0);
@@ -122,7 +122,7 @@ export default function PharmacyList() {
     if (!window.confirm("Are you sure you want to delete this pharmacy and all its products?")) return;
     setDeletingId(id);
     try {
-      await axios.delete(`http://localhost:5000/api/pharmacies/${id}`);
+      await axios.delete(`https://farumasi.onrender.com/api/pharmacies/${id}`);
       // Optionally, you may want to also call DELETE /api/products?pharmacy_id=id if your backend supports it,
       // but usually backend should cascade delete products when pharmacy is deleted.
       setPharmacies(pharmacies.filter(ph => ph.id !== id));
