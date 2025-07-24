@@ -11,7 +11,10 @@ const deliveryRoutes = require('./routes/deliveryRoutes');
 
 const app = express();
 dotenv.config();
-app.use(cors());
+app.use(cors({
+  origin: 'https://your-vercel-frontend-url.vercel.app',
+  credentials: true
+}));
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
