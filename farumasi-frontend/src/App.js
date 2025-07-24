@@ -1,6 +1,8 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import './App.css';
+// Import Leaflet CSS for proper map rendering
+import 'leaflet/dist/leaflet.css';
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
@@ -30,6 +32,7 @@ import UserDashboard from "./pages/UserDashboard";
 import UserOrders from "./pages/UserOrders";
 import UserProfile from "./pages/UserProfile";
 import OrderTracking from "./pages/OrderTracking";
+import Help from "./pages/Help";
 
 function AppRoutes() {
   const { isAuthenticated, getUserRole } = useAuth();
@@ -41,6 +44,7 @@ function AppRoutes() {
         <Route path="/home" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/help" element={<Help />} />
         
         {/* Protected User Routes */}
         <Route path="/dashboard" element={

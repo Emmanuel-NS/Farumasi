@@ -13,7 +13,7 @@ export default function StickyIcons({ cartCount = 0 }) {
   };
 
   const handleWhatsAppClick = () => {
-    const phoneNumber = '250788123456'; // Replace with actual WhatsApp number
+    const phoneNumber = '250790160172'; // Replace with any chossen WhatsApp actual number
     const message = 'Hello! I need help with Farumasi pharmacy services.';
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');

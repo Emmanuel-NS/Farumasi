@@ -124,6 +124,12 @@ export default function HomePage() {
               ) : (
                 <div className="space-x-2">
                   <Link
+                    to="/help"
+                    className="text-green-600 hover:text-green-800 px-3 py-2"
+                  >
+                    Help
+                  </Link>
+                  <Link
                     to="/login"
                     className="text-green-600 hover:text-green-800 px-3 py-2"
                   >
