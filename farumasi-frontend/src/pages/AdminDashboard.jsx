@@ -129,17 +129,16 @@ export default function AdminDashboard() {
     ],
   };
 
-  const productsPieData = {
+  const productsBarData = {
     labels: productsStats.map(stat => stat.pharmacy_name),
     datasets: [
       {
         label: "Products",
         data: productsStats.map(stat => stat.count),
-        backgroundColor: [
-          "#22d3ee", "#38bdf8", "#4ade80", "#fbbf24", "#f87171", "#a78bfa"
-        ],
-        borderWidth: 1,
-        borderColor: "#fff"
+        backgroundColor: "#fbbf24",
+        borderRadius: 8,
+        barThickness: 18,
+        maxBarThickness: 24,
       },
     ],
   };
@@ -228,23 +227,29 @@ export default function AdminDashboard() {
     }
   };
 
-  const productsPieOptions = {
+  const productsBarOptions = {
+    indexAxis: "y",
     responsive: true,
     plugins: {
-      legend: {
-        position: "bottom",
-        labels: {
-          color: "#0e7490",
-          font: { size: 14, weight: "bold" }
-        }
-      },
+      legend: { display: false },
       tooltip: {
         callbacks: {
-          label: (context) => `${context.label}: ${context.parsed}`,
+          label: (context) => `Products: ${context.parsed.x}`,
         },
       },
       title: {
         display: false,
+      }
+    },
+    scales: {
+      x: {
+        beginAtZero: true,
+        grid: { color: "#fde68a" },
+        title: { display: true, text: "Products", color: "#ca8a04", font: { weight: "bold" } }
+      },
+      y: {
+        grid: { display: false },
+        title: { display: true, text: "Pharmacy", color: "#ca8a04", font: { weight: "bold" } }
       }
     }
   };
@@ -514,16 +519,35 @@ export default function AdminDashboard() {
         </div>
 
         {/* Statistics Overview - Bottom chart section */}
-        <div className="bg-white rounded-lg shadow p-6 mt-8">
-          <h2 className="text-xl font-bold mb-6 text-green-700">Statistics Overview</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-sky-50 rounded-lg p-4">
-              <h3 className="font-semibold mb-2">Orders Per Month</h3>
-              <Bar data={ordersBarData} />
+        <div className="bg-white rounded-2xl shadow-lg mt-8 p-8">
+          <h2 className="text-2xl font-bold mb-8 text-green-700 flex items-center gap-2 justify-center">
+            <svg className="w-7 h-7 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 17a4 4 0 01-4-4V7a4 4 0 014-4h2a4 4 0 014 4v6a4 4 0 01-4 4z" />
+            </svg>
+            Statistics Overview
+          </h2>
+          <div className="flex flex-col gap-8 items-center">
+            <div className="bg-gradient-to-br from-sky-100 to-sky-200 rounded-xl p-4 shadow flex flex-col mb-8 w-full max-w-2xl mx-auto">
+              <h3 className="font-semibold mb-4 text-sky-700 text-lg flex items-center gap-2 justify-center">
+                <svg className="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 12h18M3 17h18" />
+                </svg>
+                Orders Per Month
+              </h3>
+              <div style={{ width: 600, height: 320, margin: "0 auto" }}>
+                <Bar data={ordersBarData} options={ordersBarOptions} />
+              </div>
             </div>
-            <div className="bg-sky-50 rounded-lg p-4">
-              <h3 className="font-semibold mb-2">Products Per Pharmacy</h3>
-              <Pie data={productsPieData} />
+            <div className="bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-xl p-4 shadow flex flex-col w-full max-w-2xl mx-auto">
+              <h3 className="font-semibold mb-4 text-yellow-700 text-lg flex items-center gap-2 justify-center">
+                <svg className="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                Products Per Pharmacy
+              </h3>
+              <div style={{ width: 600, height: 320, margin: "0 auto" }}>
+                <Bar data={productsBarData} options={productsBarOptions} />
+              </div>
             </div>
           </div>
         </div>
