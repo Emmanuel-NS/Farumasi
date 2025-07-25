@@ -639,5 +639,3 @@ The comprehensive documentation, clean codebase, and thoughtful architecture ens
 **Contact**: Emmanuel NS - Project Lead and Developer
 
 ---
-
-*This report represents the culmination of dedicated development work and serves as comprehensive documentation for the Farumasi medicine ordering and pharmacy management platform.*
