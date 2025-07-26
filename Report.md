@@ -671,8 +671,8 @@ The comprehensive documentation, clean codebase, and thoughtful architecture ens
 
 **Backend Demo**: [![Back-End Demo](https://img.youtube.com/vi/oJrNltQWj_I/0.jpg)](https://www.youtube.com/watch?v=oJrNltQWj_I) 
 
-**User Dashboard Demo**: [![User Dashboard Demo](https://img.youtube.com/vi/d5UtffVKegw/0.jpg)](https://www.youtube.com/watch?v=d5UtffVKegw) 
+**User Dashboard Demo**: [![User Dashboard Demo](https://img.youtube.com/vi/PBvUng5irbI/0.jpg)](https://www.youtube.com/watch?v=PBvUng5irbI) 
 
-**Admin Dashboard Demo**: [![Admin Dashboard Demo](https://img.youtube.com/vi/d5UtffVKegw/0.jpg)](https://www.youtube.com/watch?v=d5UtffVKegw) 
+**Admin Dashboard Demo**: [![Admin Dashboard Demo]] 
 
 ---
