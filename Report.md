@@ -89,6 +89,8 @@ The Farumasi system follows a modern full-stack architecture with clear separati
 | **Payment** | MTN MoMo API | Mobile money payment integration |
 | **Development** | npm | Package management |
 | | Git | Version control |
+| **Deployment** | vercel | Frontend Deployment |
+| | Render | Backend Deployment |
 
 ### Dependencies and Libraries
 
@@ -110,7 +112,7 @@ The Farumasi system follows a modern full-stack architecture with clear separati
 - react-router-dom: Client-side routing
 
 ### Database Schema
-
+<img width="574" height="877" alt="image" src="https://github.com/user-attachments/assets/1bd2b65e-2c66-4d70-945c-7922a742c755" />
 The SQLite database includes the following key tables:
 - **users**: User authentication and profile data
 - **pharmacies**: Pharmacy information and locations
@@ -123,14 +125,14 @@ The SQLite database includes the following key tables:
 ## Project Journey and Development Timeline
 
 ### Phase 1: Project Inception and Planning
-**Duration**: Initial 2 weeks
+**Duration**: Initial 3 days
 - Conducted market research on existing pharmacy applications
 - Defined user requirements and system specifications
 - Created wireframes and system design documents
 - Set up development environment and project repository
 
 ### Phase 2: Backend Development
-**Duration**: 4 weeks
+**Duration**: 1 week
 - Implemented RESTful API architecture
 - Developed user authentication system with JWT
 - Created database models and relationships
@@ -138,7 +140,7 @@ The SQLite database includes the following key tables:
 - Implemented location-based pharmacy assignment logic
 
 ### Phase 3: Frontend Development
-**Duration**: 4 weeks
+**Duration**: 3 weeks
 - Built responsive React components using Tailwind CSS
 - Implemented user registration and login flows
 - Created admin dashboard with statistics and charts
@@ -146,14 +148,14 @@ The SQLite database includes the following key tables:
 - Integrated real-time maps for delivery tracking
 
 ### Phase 4: Integration and Payment System
-**Duration**: 2 weeks
+**Duration**: 3 days
 - Connected frontend and backend through API integration
 - Implemented MTN MoMo payment gateway
 - Added prescription review workflow for admins
 - Integrated insurance-based discount calculations
 
 ### Phase 5: Testing and Deployment
-**Duration**: 2 weeks
+**Duration**: 1 week
 - Conducted comprehensive testing of all features
 - Fixed bugs and optimized performance
 - Deployed backend to cloud hosting platform
@@ -163,13 +165,40 @@ The SQLite database includes the following key tables:
 
 ## Team Roles and Contributions
 
-### Emmanuel NS - Full Stack Developer & Project Lead
+### @Emmanuel-NS - Full Stack Developer & Project Lead
 **Primary Responsibilities:**
 - Overall project architecture and system design
 - Backend API development and database design
-- Frontend React component development
-- Payment system integration (MTN MoMo API)
-- Project documentation and GitHub repository management
+- Frontend React component development (Admin side)
+- Project documentation
+
+### @Remy-cloud - Front-End Developer 
+**Primary Responsibilities:**
+- Overall Front-End architecture and Implementing Figma designs
+- Frontend React component development (User side)
+- GitHub repository management
+- Team management
+
+### @relisha1 - Ui/UX disgner 
+**Primary Responsibilities:**
+- Overall Project Figma designs
+- implementing priscription review feature on Admin Side
+
+### @Hannah1563 - Front-End developer Assistant 
+**Primary Responsibilities:**
+- Implimenting product features on Adimin side(CRUD operations on products)
+- implementing help page on User side
+
+### @francis-collab - Front-end Developer Assistant  and QA
+**Primary Responsibilities:**
+- Modifying and Updating Admin Dashboard Design
+- implementing Orders feature on Admin Side( CRUD operations on orders)
+
+### @N-SilverJr - Software Tester 
+**Primary Responsibilities:**
+- Overall Testing of Implimented features wether they work as epected
+- implementing user navigation bar
+- styling help page on User side
 
 **Key Contributions:**
 - Designed and implemented the complete RESTful API
@@ -235,9 +264,11 @@ The SQLite database includes the following key tables:
 
 ---
 
-## User Manual
+## User Manual & Architecture
 
 ### For End Users
+
+<img width="574" height="877" alt="image" src="https://github.com/Emmanuel-NS/Farumasi/raw/main/Backend/images/user_flow.svg" />
 
 #### Getting Started
 1. **Registration**
@@ -265,6 +296,8 @@ The SQLite database includes the following key tables:
 - **Prescription Storage**: Save uploaded prescriptions for future reference
 
 ### For Administrators
+
+<img width="574" height="877" alt="image" src="https://github.com/Emmanuel-NS/Farumasi/raw/main/Backend/images/admin_flow.svg" />
 
 #### Admin Dashboard Access
 1. Login with admin credentials
@@ -634,8 +667,12 @@ The comprehensive documentation, clean codebase, and thoughtful architecture ens
 
 **Repository Link**: [https://github.com/Emmanuel-NS/Farumasi](https://github.com/Emmanuel-NS/Farumasi)
 
-**Live Demo**: [Farumasi Production URL]
+**Full API Documention Link**: [https://github.com/Emmanuel-NS/Farumasi/blob/main/Backend/API_Documentation.md](https://github.com/Emmanuel-NS/Farumasi/blob/main/Backend/API_Documentation.md)
 
-**Contact**: Emmanuel NS - Project Lead and Developer
+**Backend Demo**: [![Back-End Demo](https://img.youtube.com/vi/oJrNltQWj_I/0.jpg)](https://www.youtube.com/watch?v=oJrNltQWj_I) 
+
+**User Dashboard Demo**: [![User Dashboard Demo](https://img.youtube.com/vi/d5UtffVKegw/0.jpg)](https://www.youtube.com/watch?v=d5UtffVKegw) 
+
+**Admin Dashboard Demo**: [![Admin Dashboard Demo](https://img.youtube.com/vi/d5UtffVKegw/0.jpg)](https://www.youtube.com/watch?v=d5UtffVKegw) 
 
 ---
