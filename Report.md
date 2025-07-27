@@ -673,6 +673,7 @@ The comprehensive documentation, clean codebase, and thoughtful architecture ens
 
 **User Dashboard Demo**: [![User Dashboard Demo](https://img.youtube.com/vi/PBvUng5irbI/0.jpg)](https://www.youtube.com/watch?v=PBvUng5irbI) 
 
-**Admin Dashboard Demo**: [![Admin Dashboard Demo]] 
+**Admin Dashboard Demo**: [![Adimin Dashboard Demo](https://img.youtube.com/vi/DN6brxxs24k/0.jpg)](https://www.youtube.com/watch?v=DN6brxxs24k) 
+
 
 ---
